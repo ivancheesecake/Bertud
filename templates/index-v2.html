@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+	<title>BERTUD: Building Footprint Extraction and Regularization Through Utilization of a Distributed Computing System</title>
+
+	<!-- Fonts -->
+	<style>
+
+	@font-face {
+		  font-family: "Roboto";
+		  src: local(Roboto Thin), url("{{url_for('static',filename='Roboto-Thin.eot')}}");
+		  src: url("{{url_for('static',filename='Roboto-Thin.eot')}}?#iefix") format("embedded-opentype"), url(("{{url_for('static',filename='Roboto-Thin.woff2')}}") format("woff2"), url(("{{url_for('static',filename='Roboto-Thin.woff')}}") format("woff"), url(("{{url_for('static',filename='Roboto-Thin.ttf')}}") format("truetype");
+		  font-weight: 200;
+		}
+		
+		@font-face {
+		  font-family: "Roboto Light";
+		  src: local(Roboto Light), url("{{url_for('static',filename='Roboto-Light.eot')}}");
+		  src: url("{{url_for('static',filename='Roboto-Light.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Light.woff2')}}") format("woff2"), url(".{{url_for('static',filename='Roboto-Light.woff')}}") format("woff"), url(".{{url_for('static',filename='Roboto-Light.ttf')}}") format("truetype");
+		  font-weight: 300;
+		}
+		
+		@font-face {
+		  font-family: "Roboto Regular";
+		  src: local(Roboto Regular), url("{{url_for('static',filename='Roboto-Regular.eot')}}");
+		  src: url("{{url_for('static',filename='Roboto-Regular.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Regular.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Regular.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Regular.ttf')}}") format("truetype");
+		  font-weight: 400;
+		}
+
+		@font-face {
+		  font-family: "Roboto Medium";
+		  src: url("{{url_for('static',filename='Roboto-Medium.eot')}}");
+		  src: url("{{url_for('static',filename='Roboto-Medium.eot')}}?#iefix") format("embedded-opentype"), url("../font/roboto/Roboto-Medium.woff2") format("woff2"), url("../font/roboto/Roboto-Medium.woff") format("woff"), url("../font/roboto/Roboto-Medium.ttf") format("truetype");
+		  font-weight: 500;
+		}
+
+		@font-face {
+		  font-family: "Roboto Bold";
+		  src: url("{{url_for('static',filename='Roboto-Bold.eot')}}");
+		  src: url("{{url_for('static',filename='Roboto-Bold.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Bold.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Bold.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Bold.ttf')}}") format("truetype");
+		  font-weight: 700;
+		}
+	</style>
+
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='materialize.css')}}" />
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/style.css')}}?q=1280549780" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+</head>
+
+<body>
+
+
+		<nav>
+			<div class="nav-wrapper blue darken-4">
+				<a href="#" class="brand-logo">
+
+					<img id="navbar-icon" src="{{url_for('static',filename='logo-5.png')}}"/>
+					<!-- <span style="margin-top:5px;">Bertud</span> -->
+				</a>
+			</div> 
+		</nav>
+
+		<div class="row" id="main">
+			<div id="left" class="col s2 m2 l2 z-depth-2">
+				<div id="queue-header" class="row blue darken-2">
+					<p>Queue</p>
+				</div>
+
+				<div id="queue-content">
+					 <ul class="collection">
+				        <li class="collection-item">pt000002.las</li>
+				        <li class="collection-item">pt000003.las</li>
+				        <li class="collection-item">pt000004.las</li>
+				        <li class="collection-item">pt000005.las</li>
+				      </ul>
+
+				</div>
+
+				<div id="queue-bottom">
+						<a id="add" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add_to_queue</i></a>
+				</div>
+			</div>	
+			<div id="right"class="col s2 m10 l10">
+			</div>
+		</div>
+
+	<script type="text/javascript" src="{{url_for('static',filename='jquery-1.12.0.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static',filename='materialize.min.js')}}"></script>
+
+	<script type="text/javascript">
+
+	// Initialize UI
+
+	$(document).ready(function() {
+
+		$("#main").height($(window).height()-64);
+		$("#queue-content").height($(window).height()-200);
+	});
+
+
+	// Initialize Services
+
+	// $(document).ready(function() {
+		
+	// 	// Start nameserver
+
+	// 	$.ajax({
+	// 	url: 'http://127.0.0.1:5000/start_nameserver',
+	// 	type: 'GET'
+	// 	})
+	// 	.done(function() {
+	// 		$("#status").prepend("<p>Nameserver is ready</p>");
+	// 	})
+	// 	.fail(function() {
+	// 		console.log("error");
+	// 	});
+
+	// 	// Start dispatcher
+	// 	$.ajax({
+	// 	url: 'http://127.0.0.1:5000/start_dispatcher',
+	// 	type: 'GET'
+	// 	})
+	// 	.done(function() {
+	// 		$("#status").prepend("<p>Dispatcher is ready</p>");
+	// 	});
+
+	// });
+
+	// $("#listen").click(function(event) {
+		
+	// 	setInterval(function(){
+
+	// 		$.ajax({
+	// 			url: 'http://127.0.0.1:5000/listen',
+	// 			type: 'GET',
+	// 			success: function(resp){
+	// 				console.log(resp);
+	// 				$("#status").prepend("<p>"+resp+"</p>");
+	// 			}
+	// 			});
+	// 		}, 5000);
+	// 	});
+
+
+	</script>
+</body>
+
+
+
+</html>

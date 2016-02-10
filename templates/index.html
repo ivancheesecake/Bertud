@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+	<title>BERTUD: Building Footprint Extraction and Regularization Through Utilization of a Distributed Computing System</title>
+
+</head>
+
+<body>
+	<h1>This is the homepage</h1>
+	<div id="status">
+
+	</div>
+	<!--<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>-->
+	<script type="text/javascript" src="{{url_for('static',filename='jquery-1.12.0.min.js')}}"></script>
+	<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		// Start nameserver
+
+		$.ajax({
+		url: 'http://127.0.0.1:5000/start_nameserver',
+		type: 'GET'
+		})
+		.done(function() {
+			$("#status").append("<p>Nameserver is ready</p>");
+		})
+		.fail(function() {
+			console.log("error");
+		});
+
+		// Start dispatcher
+
+		$.ajax({
+		url: 'http://127.0.0.1:5000/start_dispatcher',
+		type: 'GET'
+		})
+		.done(function() {
+			$("#status").append("<p>Dispatcher is ready</p>");
+			$("#status").append("<button id='start_worker'>Start Worker!</button>");
+
+			$("#start_worker").click(function(event) {
+			// Start worker
+			console.log("here");
+				$.ajax({
+				url: 'http://127.0.0.1:5000/start_worker',
+				type: 'GET'
+				})
+				.done(function() {
+					$("#status").append("<p>Worker is ready</p>");
+				})
+				.fail(function() {
+					console.log("error");
+				});
+			});	
+
+
+				
+				})
+				.fail(function() {
+					console.log("error");
+				});
+
+
+			
+
+	});
+
+
+
+	</script>
+</body>
+
+
+
+</html>
