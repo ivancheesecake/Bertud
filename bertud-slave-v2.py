@@ -4,25 +4,30 @@ import sys
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
-
 import Masking as ma
 import BoundaryRegularizationV2 as br
 import time
 import wx
 
+# For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
+#define worker identity
 WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
+
 TRAY_TOOLTIP = 'Bertud Slave'
+
+#Indicates that there are no connection between the slave and the dispatcher
+TRAY_ICON_GRAY = 'gray.png'
+#Indicates that the slave is free of work
 TRAY_ICON_GREEN = 'green.png'
+#Indicates that the slave is working
 TRAY_ICON_RED = 'red.png'
 
 class BertudTaskBarIcon(wx.TaskBarIcon):
     def __init__(self):
         super(BertudTaskBarIcon, self).__init__()
-        self.set_icon(TRAY_ICON_GREEN)
-
-        self.Bind(wx.EVT_TASKBAR_RIGHT_DOWN, self.on_exit)    
+        self.set_icon(TRAY_ICON_GRAY)
 
     def CreatePopupMenu(self):
         menu = wx.Menu()
@@ -36,44 +41,71 @@ class BertudTaskBarIcon(wx.TaskBarIcon):
     def on_exit(self, event):
         wx.CallAfter(self.Destroy)
 
+    #balloon - finished work
     def balloon_free(self):
         self.ShowBalloon("", "Tapos ka na gamitin ni BERTUD. GOODBYE")
 
+    #balloon - starting work
     def balloon_work(self):
         self.ShowBalloon("", "Hello " + WORKERNAME + ", you are being used by BERTUD ")
 
+    #balloon - slave initiated
     def balloon_running(self):
         self.ShowBalloon("", "BERTUD POWER!")
 
 def main():
+    #instantiate application
     app = wx.PySimpleApp()
     taskbar = BertudTaskBarIcon()
 
-    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.66")
     print("This is worker %s" % WORKERNAME)
-    print("getting work from dispatcher.")
-    taskbar.balloon_running()
 
+    #make connection to dispatcher server
+    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.28.136")
+
+    #Loop for getting work
     while True:
+        #Check for work in dispatcher
         try:
-            time.sleep(2)
-            taskbar.set_icon(TRAY_ICON_RED)
             item = dispatcher.getWork()
+        #If there are no work available
         except ValueError:
             print("no work available yet.")
+        #No connection to dispatcher
+        except:
+            #Set the taskbar's icon to gray - means no connection
+            taskbar.set_icon(TRAY_ICON_GRAY)
+            #Loop for reconnecting to dispatcher
+            while True:
+                #Try to reconnect to dispatcher
+                try:
+                    print("Dispatcher not found. Reconnecting...")
+                    dispatcher._pyroReconnect()
+                #Can't connect -> Sleep then retry again
+                except Exception:
+                    time.sleep(1)
+                #Reconnecting succesful
+                else:
+                    #Set the taskbar;s icon to green -> available
+                    taskbar.set_icon(TRAY_ICON_GREEN)
+                    taskbar.balloon_running()
+                    print("Connected to dispatcher. Getting work now.")
+                    break
+        #Processing work from dispatcher
         else:
+            #Set taskbar's icon to red -> working
             taskbar.set_icon(TRAY_ICON_RED)
             taskbar.balloon_work()
 
             print("Got some work...")
-            # print("Received "+str(item.data.nbytes)+" bytes.")
 
+            #Use the data collected from the dispatcher
             ndsm = item.data["ndsm"]
             classified= item.data["classified"]
             slope= item.data["slope"]
             slopeslope= item.data["slopeslope"]
 
-
+            #Process the data
             print "Generating Initial Mask..."
             veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
@@ -97,18 +129,19 @@ def main():
             
             finalMask = ma.buildFinalMask(pieces,mergedMask)
 
-
-
-
+            #set the output to the item's final result
             item.result = finalMask
+            #set the item's worker
             item.processedBy = WORKERNAME
             
-            # PROCESS_BLOCK(item)
+            #return the result to the dispatcher
             dispatcher.putResult(item)
 
+            #set taskbar's icon to green -> available
             taskbar.set_icon(TRAY_ICON_GREEN)
             taskbar.balloon_free()
 
+    #loop the application
     app.MainLoop()
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 # from __future__ import print_function
-
 try:
     import queue
 except ImportError:
@@ -18,19 +17,22 @@ class DispatcherQueue(object):
         self.workqueue = queue.Queue()
         self.resultqueue = queue.Queue()
 
+    #function that receives work from client
     def putWork(self, item):
         self.workqueue.put(item)
 
+    #slaves use this to check for available works
     def getWork(self, timeout=5):
         try:
             return self.workqueue.get(block=True, timeout=timeout)
         except queue.Empty:
             raise ValueError("no items in queue")
 
+    #function that receives results from slaves
     def putResult(self, item):
         self.resultqueue.put(item)
-        # print type(item)
 
+    #clients use this to check for available results
     def getResult(self, timeout=5):
         try:
             return self.resultqueue.get(block=True, timeout=timeout)
@@ -43,22 +45,13 @@ class DispatcherQueue(object):
     def resultQueueSize(self):
         return self.resultqueue.qsize()
 
+    #updates the state of utilization of slaves
     def updateWorkerUsage(self, workerName, cpu_usage, ram_usage):
         print workerName, cpu_usage, ram_usage
 
-    def test(self):
-        return "Hello, it's me."
-
-# main program
-
-# Pyro4.Daemon.serveSimple({
-#     DispatcherQueue(): "example.distributed.dispatcher"
-# })
-
+#Starts the dispatcher server
 Pyro4.Daemon.serveSimple(
     {
         DispatcherQueue(): "example.distributed.dispatcher"
     },
-    ns=True, verbose=True, host="10.0.63.66")
-
-# Declare this explicitly later on
+    ns=True, verbose=True, host="169.254.28.136")
