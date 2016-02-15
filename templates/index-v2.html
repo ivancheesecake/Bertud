@@ -130,7 +130,7 @@
 						<div id="pc-1" class="card small">
 							<div class="card-image waves-effect waves-block waves-light">
 								 <!-- <img class="activator" src="{{url_for('static',filename='test.png')}}"> -->
-								 <div class="activator pc-panel green lighten-1">
+								 <div id="panel-pc1" class="activator pc-panel red lighten-1">
 
 								 	<div class="row ">
 								 		<div class="col s5 m5 l5">
@@ -192,13 +192,18 @@
 
 	$(document).ready(function() {
 		
+		// Make this a loop for later
+
+		$("#cpu-pc1").hide();
+		$("#ram-pc1").hide();
+
 		setInterval(function(){
 
 			$.ajax({
 				url: 'http://127.0.0.1:5000/listen',
 				type: 'GET',
 				success: function(resp){
-					// console.log(resp);
+					console.log(resp['1'].cpu,resp['1'].ram);
 					// $("#status").prepend("<p>"+resp+"</p>");
 					update_pcs(resp);
 
@@ -213,9 +218,33 @@
 
 		$.each(obj, function(index,o){
 
-			$("#cpu-pc"+index).html("CPU: "+o.cpu+"%");
-			$("#ram-pc"+index).html("RAM: "+o.ram+"%");
+			if(o.status==0 || o.cpu==-1){
 
+				$("#status-pc"+index).html("Status: Disconnected");
+				$("#panel-pc"+index).addClass('red')
+				$("#panel-pc"+index).removeClass('green')
+
+				$("#cpu-pc"+index).hide();
+				$("#ram-pc"+index).hide();
+			}
+
+			else{
+
+				if(o.status==1){
+					$("#status-pc"+index).html("Status: Ready");
+					$("#panel-pc"+index).addClass('green')
+					$("#panel-pc"+index).removeClass('red')
+				}
+				else if(o.status==2){
+					$("#status-pc"+index).html("Status: Processing");
+
+				}
+
+				$("#cpu-pc"+index).show()
+				$("#ram-pc"+index).show()
+				$("#cpu-pc"+index).html("CPU: "+o.cpu+"%");
+				$("#ram-pc"+index).html("RAM: "+o.ram+"%");
+			}	
 		});
 
 

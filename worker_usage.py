@@ -23,6 +23,10 @@ WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
 def main():
 	#connects to the dispatcher
 	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
+	
+	# For UI Testing lang
+	dispatcher.updateWorkerStatus('1', 1)
+
 
 	#Iterativly update the worker's cpu and ram usage to the dispatcher
 	while True:

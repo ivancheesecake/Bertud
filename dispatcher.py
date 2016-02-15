@@ -6,6 +6,7 @@ except ImportError:
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
+import copy
 
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
@@ -17,7 +18,7 @@ class DispatcherQueue(object):
         self.workqueue = queue.Queue()
         self.resultqueue = queue.Queue()
                             #id  #attributes
-        self.worker_info = {'1':{'cpu':0,'ram':0,'status':"0"}} # Create 10 of these next time
+        self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
 
 
     #function that receives work from client
@@ -50,12 +51,22 @@ class DispatcherQueue(object):
 
     #updates the state of utilization of slaves
     def updateWorkerUsage(self, worker_id, cpu_usage, ram_usage):
-        # return workerName, cpu_usage, ram_usage
         self.worker_info[worker_id]['cpu'] =cpu_usage 
         self.worker_info[worker_id]['ram'] =ram_usage
 
+    def updateWorkerStatus(self,worker_id,status):
+        self.worker_info[worker_id]['status'] = status
+
     def getWorkerInfo(self):
-        return self.worker_info 
+
+        clone = copy.deepcopy(self.worker_info)
+        # return self.worker_info 
+        
+        for key,obj in self.worker_info.iteritems():
+            self.worker_info[key]['cpu'] = -1
+            self.worker_info[key]['ram'] = -1
+
+        return clone 
 
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(

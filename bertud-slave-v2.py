@@ -13,6 +13,10 @@ import wx
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 #define worker identity
+
+# Gawing dynamic next time, read from config file
+WORKERID = '1'
+
 WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
 
 TRAY_TOOLTIP = 'Bertud Slave'
@@ -61,7 +65,7 @@ def main():
     print("This is worker %s" % WORKERNAME)
 
     #make connection to dispatcher server
-    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.28.136")
+    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
 
     #Loop for getting work
     while True:
@@ -71,6 +75,7 @@ def main():
         #If there are no work available
         except ValueError:
             print("no work available yet.")
+            dispatcher.updateWorkerStatus(WORKERID,'1')
         #No connection to dispatcher
         except:
             #Set the taskbar's icon to gray - means no connection
@@ -90,6 +95,7 @@ def main():
                     taskbar.set_icon(TRAY_ICON_GREEN)
                     taskbar.balloon_running()
                     print("Connected to dispatcher. Getting work now.")
+                    dispatcher.updateWorkerStatus(WORKERID,'1')
                     break
         #Processing work from dispatcher
         else:
@@ -98,6 +104,8 @@ def main():
             taskbar.balloon_work()
 
             print("Got some work...")
+
+            dispatcher.updateWorkerStatus(WORKERID,'2')
 
             #Use the data collected from the dispatcher
             ndsm = item.data["ndsm"]
