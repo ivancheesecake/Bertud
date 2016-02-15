@@ -19,11 +19,21 @@ body{
 }
 
 /* Left styles*/
-#files{
-	padding-left: 25px;
-	padding-right: 25px;
-	margin-top: 120px;
+.collapsible-body{
+	overflow-y: scroll;
+	padding:15px;
 }
+
+::-webkit-scrollbar {
+      width: 10px;
+}
+::-webkit-scrollbar-track {
+      background-color: #ffffff;
+} 
+::-webkit-scrollbar-thumb {
+      background-color: #bdbdbd; 
+} 
+
 
 #left{
 
@@ -46,10 +56,6 @@ body{
 	font-family: Roboto Light;
 }
 
-{
-	color:Black;
-}
-
 input{
 	color: Black;
 }
@@ -58,6 +64,11 @@ input{
 	padding: 10px;
 	text-align: right;
 /*	border:1px black solid;*/
+}
+
+.btn-small{
+	margin-top: 25px;
+	/*padding: 10px!important;*/
 }
 
 /* Right styles*/
@@ -107,3 +118,4 @@ input{
 	font-size: 24px;
 	font-family: Roboto;
 }
+

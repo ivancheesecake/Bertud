@@ -72,50 +72,48 @@
 				      </ul>
 
 					</div>
-					 <div id="files" class="col s12">
-					 	<br />
-					 	<h5>1. Select LAS/LAZ Files to Process</h5>
+					<div id="files" class="col s12">
+					 	 <ul class="collapsible" data-collapsible="accordion">
+						    <li>
+						      <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Select LAS/LAZ Files to be Processed</div>
+						      <div class="collapsible-body">
+								<div class="row">
+									<div class="col s11 m11 l11">
+										<div class="input-field">
+											<input id="source-folder" type="text" class="validate">
+											<label for="source-folder">Source Folder</label>
+										</div>
+									</div>
+									<div class="col s1 m1 l1">
+										<!--  <button class="btn waves-effect waves-light btn-small" type="submit" name="action">Go
+										  </button> -->
 
-					 	<div class="file-field input-field">
-							<div class="btn waves-effect waves-light blue">
-							<span><i class="material-icons">file_upload</i></span>
-							<input type="file" multiple>
-							</div>
-							<div class="file-path-wrapper">
-							<input class="file-path validate" type="text" placeholder="Choose one or more files">
-							</div>
-						</div>
+										 <a class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">folder_open</i></a>  
+									</div>
+								</div>    
+						      </div>
+						    </li>
+						    <li>
+						      <div class="collapsible-header"><i class="material-icons">folder</i>Select Output Folder</div>
+						      <div class="collapsible-body">
 
-						<br />
+						      	<div class="row">
+									<div class="col s11 m11 l11">
+										<div class="input-field">
+											<input id="dest-folder" type="text" class="validate">
+											<label for="dest-folder">Destination Folder</label>
+										</div>
+									</div>
 
-						<h5>2. Select Output Directory</h5>
+								</div>
 
-						<div class="file-field input-field">
-							<div class="btn waves-effect waves-light  blue">
-							<span><i class="material-icons">folder</i></span>
-							<input type="file"  webkitdirectory directory>
-							</div>
-							<div class="file-path-wrapper">
-							<input class="file-path validate" type="text" placeholder="Choose directory...">
-							</div>
-						</div>
-
-						<br />
-
-						<h5>3. Advanced Settings</h5>
-						<br />
-						<div class="input-field ">
-						    <select >
-						      <option class="blue" value="1">UTM 51N</option>
-						      <option class="blue" value="2">UTM 50N</option>
-						    </select>
-						    <label>Projection</label>
-					  	</div>
-
-						<br />
-						<div class="input-field" style="text-align:right">
-							<a id="btn-add"class="btn-floating btn-large waves-effect waves-light red tooltipped" data-position="bottom" data-delay="50" data-tooltip="Add File/s to Queue"><i class="material-icons">add_to_queue</i></a>
-						</div>
+						      </div>
+						    </li>
+						    <li>
+						      <div class="collapsible-header"><i class="material-icons">settings</i>Advanced Settings</div>
+						      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+						    </li>
+						  </ul>
 
 					 </div>
    					 <div id="queue" class="col s12">Test 2</div>
@@ -178,7 +176,8 @@
 
 		$('select').material_select();
 		$("#main").height($(window).height()-64);
-		$("#queue-content").height($(window).height()-200);
+		// $("#queue-content").height($(window).height()-200);
+		$(".collapsible-body").css('max-height',$(window).height()-300);
 
 	});
 

@@ -47,7 +47,7 @@ def index():
 @app.route('/dashboard')
 def dashboard():
 	# p = subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
-	return render_template("index-v2.html")
+	return render_template("index-v3.html")
 
 # URI for starting the nameserver
 @app.route('/start_services')
