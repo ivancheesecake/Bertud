@@ -134,8 +134,26 @@ def main():
             #set the item's worker
             item.processedBy = WORKERNAME
             
+            #KAGEYAMA
             #return the result to the dispatcher
-            dispatcher.putResult(item)
+            try:
+                dispatcher.putResult(item)
+            except:
+                while True:
+                    #Try to reconnect to dispatcher
+                    try:
+                        print("Dispatcher not found. Reconnecting...")
+                        dispatcher._pyroReconnect()
+                    #Can't connect -> Sleep then retry again
+                    except Exception:
+                        time.sleep(1)
+                    #Reconnecting succesful
+                    else:
+                        dispatcher.putResult(item)
+                        print("Connected to dispatcher.")
+                        break
+
+            # dispatcher.putResult(item)
 
             #set taskbar's icon to green -> available
             taskbar.set_icon(TRAY_ICON_GREEN)

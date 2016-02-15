@@ -26,10 +26,23 @@ def main():
 
 	#Iterativly update the worker's cpu and ram usage to the dispatcher
 	while True:
-									#String
-		dispatcher.updateWorkerUsage('1', psutil.cpu_percent(), psutil.virtual_memory().percent)
-		time.sleep(2)
+		try:
+			dispatcher.updateWorkerUsage('1', psutil.cpu_percent(), psutil.virtual_memory().percent)
+		except:
+			while True:
+                #Try to reconnect to dispatcher
+				try:
+					print("Dispatcher not found. Reconnecting...")
+					dispatcher._pyroReconnect()
+                #Can't connect -> Sleep then retry again
+				except Exception:
+					time.sleep(1)
+                #Reconnecting succesful
+				else:
+					print("Connected to dispatcher.")
+					break
 
+		time.sleep(2)
 
 if __name__ == "__main__":
     main()
