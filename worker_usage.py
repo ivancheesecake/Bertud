@@ -17,16 +17,17 @@ if sys.version_info < (3, 0):
     range = xrange   # make sure to use the memory efficient range generator
 
 #Loads the worker's info
-WORKERINFO = pickle.load(open("config_worker.pickle", "rb"))
+# WORKERINFO = pickle.load(open("config_worker.pickle", "rb"))
 WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
 
 def main():
 	#connects to the dispatcher
-	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.28.136")
+	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
 
 	#Iterativly update the worker's cpu and ram usage to the dispatcher
 	while True:
-		dispatcher.updateWorkerUsage(WORKERINFO["id"], WORKERNAME, psutil.cpu_percent(), psutil.virtual_memory().percent)
+									#String
+		dispatcher.updateWorkerUsage('1', psutil.cpu_percent(), psutil.virtual_memory().percent)
 		time.sleep(2)
 
 

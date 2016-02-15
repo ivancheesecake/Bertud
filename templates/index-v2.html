@@ -9,7 +9,7 @@
 	@font-face {
 		  font-family: "Roboto";
 		  src: local(Roboto Thin), url("{{url_for('static',filename='Roboto-Thin.eot')}}");
-		  src: url("{{url_for('static',filename='Roboto-Thin.eot')}}?#iefix") format("embedded-opentype"), url(("{{url_for('static',filename='Roboto-Thin.woff2')}}") format("woff2"), url(("{{url_for('static',filename='Roboto-Thin.woff')}}") format("woff"), url(("{{url_for('static',filename='Roboto-Thin.ttf')}}") format("truetype");
+		  src: url("{{url_for('static',filename='Roboto-Thin.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Thin.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Thin.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Thin.ttf')}}") format("truetype");
 		  font-weight: 200;
 		}
 		
@@ -62,27 +62,109 @@
 		</nav>
 
 		<div class="row" id="main">
-			<div id="left" class="col s2 m2 l2 z-depth-2">
-				<div id="queue-header" class="row blue darken-2">
-					<p>Queue</p>
-				</div>
-
-				<div id="queue-content">
-					 <ul class="collection">
-				        <li class="collection-item">pt000002.las</li>
-				        <li class="collection-item">pt000003.las</li>
-				        <li class="collection-item">pt000004.las</li>
-				        <li class="collection-item">pt000005.las</li>
+			<div id="left" class="col s4 m4 l3 z-depth-2">
+				<div class="row">
+					<div class="col s12" id="tab-container">
+						<ul class="tabs">
+				        <li class="tab col s3"><a class="active blue-text" href="#files">Add Files</a></li>
+				        <li class="tab col s3"><a href="#queue" class=" blue-text">Queue</a></li>
+				         <div class="indicator blue" style="z-index:1"></div>
 				      </ul>
 
-				</div>
+					</div>
+					 <div id="files" class="col s12">
+					 	<br />
+					 	<h5>1. Select LAS/LAZ Files to Process</h5>
 
-				<div id="queue-bottom">
-						<a id="add" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add_to_queue</i></a>
+					 	<div class="file-field input-field">
+							<div class="btn waves-effect waves-light blue">
+							<span><i class="material-icons">file_upload</i></span>
+							<input type="file" multiple>
+							</div>
+							<div class="file-path-wrapper">
+							<input class="file-path validate" type="text" placeholder="Choose one or more files">
+							</div>
+						</div>
+
+						<br />
+
+						<h5>2. Select Output Directory</h5>
+
+						<div class="file-field input-field">
+							<div class="btn waves-effect waves-light  blue">
+							<span><i class="material-icons">folder</i></span>
+							<input type="file"  webkitdirectory directory>
+							</div>
+							<div class="file-path-wrapper">
+							<input class="file-path validate" type="text" placeholder="Choose directory...">
+							</div>
+						</div>
+
+						<br />
+
+						<h5>3. Advanced Settings</h5>
+						<br />
+						<div class="input-field ">
+						    <select >
+						      <option class="blue" value="1">UTM 51N</option>
+						      <option class="blue" value="2">UTM 50N</option>
+						    </select>
+						    <label>Projection</label>
+					  	</div>
+
+						<br />
+						<div class="input-field" style="text-align:right">
+							<a id="btn-add"class="btn-floating btn-large waves-effect waves-light red tooltipped" data-position="bottom" data-delay="50" data-tooltip="Add File/s to Queue"><i class="material-icons">add_to_queue</i></a>
+						</div>
+
+					 </div>
+   					 <div id="queue" class="col s12">Test 2</div>
+
 				</div>
 			</div>	
-			<div id="right"class="col s2 m10 l10">
+
+			<div id="right"class="col s8 m8 l9">
+
+				<div class="row">
+					<div class="col s12 m4 l4">
+						<div id="pc-1" class="card small">
+							<div class="card-image waves-effect waves-block waves-light">
+								 <!-- <img class="activator" src="{{url_for('static',filename='test.png')}}"> -->
+								 <div class="activator pc-panel green lighten-1">
+
+								 	<div class="row ">
+								 		<div class="col s5 m5 l5">
+								 			<i class="material-icons pc-icon">desktop_mac</i>
+								 		</div>
+
+								 		<div class="col s7 m7 l7 pc-status">
+								 			<p id="status-pc1" class="status">
+								 				Status: Ready
+								 			</p>
+								 			<p id="cpu-pc1" class="cpu">
+								 				CPU: 22%
+								 			</p>
+								 			<p id="ram-pc1" class="ram">
+								 				RAM: 12%
+								 			</p>
+								 		</div>
+								 	</div>
+								 </div>
+							</div>
+
+							<div class="card-content">
+								<span class="card-title activator grey-text text-darken-4">Cheesecake-PC<i class="material-icons right card-icon">more_vert</i></span>
+							</div>
+							<div class="card-reveal">
+							<span class="card-title grey-text text-darken-4">Cheesecake-PC<i class="material-icons right ">close</i></span>
+							<p>Here is some more information about this product that is only revealed once clicked on.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
 			</div>
+
 		</div>
 
 	<script type="text/javascript" src="{{url_for('static',filename='jquery-1.12.0.min.js')}}"></script>
@@ -94,53 +176,50 @@
 
 	$(document).ready(function() {
 
+		$('select').material_select();
 		$("#main").height($(window).height()-64);
 		$("#queue-content").height($(window).height()-200);
+
+
+
 	});
 
+	$('#btn-add').click(function(event) {
+		alert("HERE");
+	});
 
 	// Initialize Services
 
-	// $(document).ready(function() {
+	$(document).ready(function() {
 		
-	// 	// Start nameserver
+		setInterval(function(){
 
-	// 	$.ajax({
-	// 	url: 'http://127.0.0.1:5000/start_nameserver',
-	// 	type: 'GET'
-	// 	})
-	// 	.done(function() {
-	// 		$("#status").prepend("<p>Nameserver is ready</p>");
-	// 	})
-	// 	.fail(function() {
-	// 		console.log("error");
-	// 	});
+			$.ajax({
+				url: 'http://127.0.0.1:5000/listen',
+				type: 'GET',
+				success: function(resp){
+					// console.log(resp);
+					// $("#status").prepend("<p>"+resp+"</p>");
+					update_pcs(resp);
 
-	// 	// Start dispatcher
-	// 	$.ajax({
-	// 	url: 'http://127.0.0.1:5000/start_dispatcher',
-	// 	type: 'GET'
-	// 	})
-	// 	.done(function() {
-	// 		$("#status").prepend("<p>Dispatcher is ready</p>");
-	// 	});
+				}
+				});
+			}, 5000);
 
-	// });
 
-	// $("#listen").click(function(event) {
+	});
 		
-	// 	setInterval(function(){
+	function update_pcs(obj){
 
-	// 		$.ajax({
-	// 			url: 'http://127.0.0.1:5000/listen',
-	// 			type: 'GET',
-	// 			success: function(resp){
-	// 				console.log(resp);
-	// 				$("#status").prepend("<p>"+resp+"</p>");
-	// 			}
-	// 			});
-	// 		}, 5000);
-	// 	});
+		$.each(obj, function(index,o){
+
+			$("#cpu-pc"+index).html("CPU: "+o.cpu+"%");
+			$("#ram-pc"+index).html("RAM: "+o.ram+"%");
+
+		});
+
+
+	}	
 
 
 	</script>

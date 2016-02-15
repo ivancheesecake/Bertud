@@ -3,10 +3,11 @@ import atexit
 import psutil
 import Pyro4
 import os
+import time
 # from Pyro4.util import SerializerBase
 # import workitem
 
-from flask import Flask,render_template,url_for
+from flask import Flask,render_template,url_for,redirect,jsonify
 app = Flask(__name__)
 
 def exit_handler():
@@ -37,15 +38,31 @@ atexit.register(exit_handler)
 
 @app.route('/')
 def index():
+	
+	# Create a condition to check if these processes are running
+	subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
+	subprocess.Popen(["python","dispatcher.py"])
+	return redirect(url_for('dashboard'))
+
+@app.route('/dashboard')
+def dashboard():
+	# p = subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
 	return render_template("index-v2.html")
 
-
 # URI for starting the nameserver
+@app.route('/start_services')
+def start_services():
+	subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
+	# time.sleep(2)
+	subprocess.Popen(["python","dispatcher.py"])
+	return "Services initialized..."
+
+
 @app.route('/start_nameserver')
 def start_nameserver():
 
 	# Open nameserver
-	p = subprocess.Popen(["pyro4-ns","--host","10.0.63.66"])
+	p = subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
 	return "Started nameserver successfully..."
 
 # URI for starting the nameserver
@@ -59,14 +76,10 @@ def start_dispatcher():
 @app.route('/listen')
 def listen():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
-	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.66")
+	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
 
 	#JSONIFY THIS SHIT
-	return dispatcher.test()
-
-		
-
-
+	return jsonify(dispatcher.getWorkerInfo())
 
 if __name__ == '__main__':
 	app.run(debug=True,host='0.0.0.0')

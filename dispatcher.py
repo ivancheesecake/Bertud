@@ -16,6 +16,9 @@ class DispatcherQueue(object):
     def __init__(self):
         self.workqueue = queue.Queue()
         self.resultqueue = queue.Queue()
+                            #id  #attributes
+        self.worker_info = {'1':{'cpu':0,'ram':0,'status':"0"}} # Create 10 of these next time
+
 
     #function that receives work from client
     def putWork(self, item):
@@ -46,12 +49,17 @@ class DispatcherQueue(object):
         return self.resultqueue.qsize()
 
     #updates the state of utilization of slaves
-    def updateWorkerUsage(self, workerName, cpu_usage, ram_usage):
-        print workerName, cpu_usage, ram_usage
+    def updateWorkerUsage(self, worker_id, cpu_usage, ram_usage):
+        # return workerName, cpu_usage, ram_usage
+        self.worker_info[worker_id]['cpu'] =cpu_usage 
+        self.worker_info[worker_id]['ram'] =ram_usage
+
+    def getWorkerInfo(self):
+        return self.worker_info 
 
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(
     {
         DispatcherQueue(): "example.distributed.dispatcher"
     },
-    ns=True, verbose=True, host="169.254.28.136")
+    ns=True, verbose=True, host="10.0.63.90")
