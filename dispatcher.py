@@ -73,4 +73,4 @@ Pyro4.Daemon.serveSimple(
     {
         DispatcherQueue(): "example.distributed.dispatcher"
     },
-    ns=True, verbose=True, host="10.0.63.90")
+    ns=True, verbose=True, host="169.254.23.41")

@@ -16,7 +16,7 @@ SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 def main():
     #connect to dispatcher
-    with Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.66") as dispatcher:
+    with Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher") as dispatcher:
         placework(dispatcher)
         # collectresults(dispatcher)
 
@@ -25,7 +25,7 @@ def placework(dispatcher):
     print("placing work items into dispatcher queue.")
 
     #Read LAZ input file then send to dispatcher
-    with open("laz.laz", "rb") as file:
+    with open("E:\FeatureExtractionV4\lasprocessing\ground\pt000002.laz", "rb") as file:
         item = Workitem(1, file.read())                 #ID(FIRST PARAM) SHOULD BE UNIQUE -> CODE CODE CODE
 
     # inputs = {}
