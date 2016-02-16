@@ -65,7 +65,7 @@ def main():
     print("This is worker %s" % WORKERNAME)
 
     #make connection to dispatcher server
-    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
+    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher")
 
     #Loop for getting work
     while True:
@@ -114,7 +114,7 @@ def main():
             # slopeslope= item.data["slopeslope"]
             
             laz = item.data
-            with open("C:bertud_temp\pointcloud.laz", "wb") as file:
+            with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
                 file.write(laz)
 
             #Process laz
