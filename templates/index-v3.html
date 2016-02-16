@@ -4,6 +4,9 @@
 	<title>BERTUD: Building Footprint Extraction and Regularization Through Utilization of a Distributed Computing System</title>
 
 	<!-- Fonts -->
+
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='materialize.css')}}" />
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/style.css')}}?q=1280549780" />
 	<style>
 
 	@font-face {
@@ -40,11 +43,35 @@
 		  src: url("{{url_for('static',filename='Roboto-Bold.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Bold.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Bold.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Bold.ttf')}}") format("truetype");
 		  font-weight: 700;
 		}
+
+		@font-face {
+		  font-family: 'Material Icons';
+		  font-style: normal;
+		  font-weight: 400;
+		  src: local('Material Icons'), local('MaterialIcons-Regular'), url("{{url_for('static',filename='MaterialIcons-Regular.woff2')}}") format('woff2');
+		}
+
+		.material-icons {
+		  font-family: 'Material Icons';
+		  font-weight: normal;
+		  font-style: normal;
+		  font-size: 24px;
+		  line-height: 1;
+		  letter-spacing: normal;
+		  text-transform: none;
+		  display: inline-block;
+		  white-space: nowrap;
+		  word-wrap: normal;
+		  direction: ltr;
+		  -webkit-font-feature-settings: 'liga';
+		  -webkit-font-smoothing: antialiased;
+		}
+
+
 	</style>
 
-	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='materialize.css')}}" />
-	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/style.css')}}?q=1280549780" />
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	
+	<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
 
 </head>
 
@@ -85,10 +112,8 @@
 										</div>
 									</div>
 									<div class="col s1 m1 l1">
-										<!--  <button class="btn waves-effect waves-light btn-small" type="submit" name="action">Go
-										  </button> -->
-
-										 <a class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">folder_open</i></a>  
+		
+										 <a id="btn-source-folder" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">folder_open</i></a>  
 									</div>
 								</div>    
 						      </div>
@@ -185,23 +210,25 @@
 
 	$(document).ready(function() {
 		
+		$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/raw")
+
 		// Make this a loop for later
 
 		$("#cpu-pc1").hide();
 		$("#ram-pc1").hide();
 
-		setInterval(function(){
+		// setInterval(function(){
 
-			$.ajax({
-				url: 'http://127.0.0.1:5000/listen',
-				type: 'GET',
-				success: function(resp){
-					console.log(resp['1'].cpu,resp['1'].ram);
-					update_pcs(resp);
+		// 	$.ajax({
+		// 		url: 'http://127.0.0.1:5000/listen',
+		// 		type: 'GET',
+		// 		success: function(resp){
+		// 			console.log(resp['1'].cpu,resp['1'].ram);
+		// 			update_pcs(resp);
 
-				}
-				});
-			}, 5000);
+		// 		}
+		// 		});
+		// 	}, 5000);
 
 
 	});
@@ -241,6 +268,28 @@
 
 
 	}
+	
+	
+
+	//E:\FeatureExtractionV4\pipelinev6\inputs\raw
+
+	$('#btn-source-folder').click(function(event) {
+
+		// alert("HERE");
+		data = {"sourcefolder": $("#source-folder").val()}
+		console.log(data)
+		$.ajax({
+			url: 'http://127.0.0.1:5000/inputfolder',
+			type: 'POST',
+			dataType: 'json',
+			data: {"sourcefolder": $("#source-folder").val()},
+
+			success: function(resp){
+				console.log(resp);
+				console.log("HERE");
+			}
+		});
+	});
 
 	$('#btn-add').click(function(event) {
 		alert("HERE");
