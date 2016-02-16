@@ -5,6 +5,7 @@ import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
 import Masking as ma
+import PrepareInputs as pi
 import BoundaryRegularizationV2 as br
 import time
 import wx
@@ -117,58 +118,59 @@ def main():
             with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
                 file.write(laz)
 
-            #Process laz
-            #codecodecode
-
             # #Process the data
-            # print "Generating Initial Mask..."
-            # veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
-
-            # print "Generating markers for Watershed segmentation..."
-
-            # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
             
-            # print "Performing Watershed segmentation..."
+            print "Preparing Inputs..."
+            pi.prepareInputs()
 
-            # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+            print "Generating Initial Mask..."
+            veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
-            # print "Performing basic region merging..."
+            print "Generating markers for Watershed segmentation..."
 
-            # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+            initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+            
+            print "Performing Watershed segmentation..."
 
-            # print "Performing basic boundary regularization..."
+            labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+
+            print "Performing basic region merging..."
+
+            mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+
+            print "Performing basic boundary regularization..."
         
-            # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
+            pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
 
-            # print "Creating final mask and saving output raster..."
+            print "Creating final mask and saving output raster..."
             
-            # finalMask = ma.buildFinalMask(pieces,mergedMask)
+            finalMask = ma.buildFinalMask(pieces,mergedMask)
 
-            # #set the output to the item's final result
-            # item.result = finalMask
-            # #set the item's worker
-            # item.processedBy = WORKERNAME
+            #set the output to the item's final result
+            item.result = finalMask
+            #set the item's worker
+            item.processedBy = WORKERNAME
             
-            # #KAGEYAMA
-            # #return the result to the dispatcher
-            # try:
-            #     dispatcher.putResult(item)
-            # except:
-            #     while True:
-            #         #Try to reconnect to dispatcher
-            #         try:
-            #             print("Dispatcher not found. Reconnecting...")
-            #             dispatcher._pyroReconnect()
-            #         #Can't connect -> Sleep then retry again
-            #         except Exception:
-            #             time.sleep(1)
-            #         #Reconnecting succesful
-            #         else:
-            #             dispatcher.putResult(item)
-            #             print("Connected to dispatcher.")
-            #             break
+            #KAGEYAMA
+            #return the result to the dispatcher
+            try:
+                dispatcher.putResult(item)
+            except:
+                while True:
+                    #Try to reconnect to dispatcher
+                    try:
+                        print("Dispatcher not found. Reconnecting...")
+                        dispatcher._pyroReconnect()
+                    #Can't connect -> Sleep then retry again
+                    except Exception:
+                        time.sleep(1)
+                    #Reconnecting succesful
+                    else:
+                        dispatcher.putResult(item)
+                        print("Connected to dispatcher.")
+                        break
 
-            # dispatcher.putResult(item)
+            dispatcher.putResult(item)
 
             #set taskbar's icon to green -> available
             taskbar.set_icon(TRAY_ICON_GREEN)

@@ -8,55 +8,26 @@ import multiprocessing as mp
 
 def slopeFilter(x):
 
-		a = x[0]
-		b = x[1]
-		c = x[2]
-		d = x[3]
-		e = x[4]
-		f = x[5]
-		g = x[6]
-		h = x[7]
-		i = x[8]
-		
-		dzdx = ((c + 2*f + i) - (a + 2*d + g)) /4	# cellsize is 0.5
-		dzdy = ((g + 2*h + i) - (a + 2*b + c))/4
-
-
-		rise_run = np.sqrt(dzdx*dzdx + dzdy*dzdy)  
-		slope_degrees = np.arctan(rise_run) * 57.29578
-		return slope_degrees
-
-
-def generateOtherDerivatives(inputs):
-	dsmsPath = inputs[0]
-	dtmsPath = inputs[1]
-	ndsmsPath = inputs[2]
-	slopesPath = inputs[3]
-	slopeslopesPath = inputs[4]
-	filename = inputs[5]
-
-	dsm = io.imread(dsmsPath+filename)
-	dtm = io.imread(dtmsPath+filename)
-
-	# nDSM
-
-	dtm[dtm<0] = 9999
-	dsm[dsm<0] = 0
-
-	ndsm = dsm-dtm
-	ndsm[ndsm<2] = 0
-	io.imsave(ndsmsPath+filename,ndsm)
+	a = x[0]
+	b = x[1]
+	c = x[2]
+	d = x[3]
+	e = x[4]
+	f = x[5]
+	g = x[6]
+	h = x[7]
+	i = x[8]
 	
-	# Slope 
+	dzdx = ((c + 2*f + i) - (a + 2*d + g)) /4	# cellsize is 0.5
+	dzdy = ((g + 2*h + i) - (a + 2*b + c))/4
 
-	slope = ndimage.generic_filter(ndsm,slopeFilter,size=3)
-	io.imsave(slopesPath+filename,slope)
 
-	slopeslope = ndimage.generic_filter(slope,slopeFilter,size=3)
-	io.imsave(slopeslopesPath+filename,slopeslope)	
+	rise_run = np.sqrt(dzdx*dzdx + dzdy*dzdy)  
+	slope_degrees = np.arctan(rise_run) * 57.29578
+	return slope_degrees
 
-	return True
-def main():
+
+def prepareInputs():
 
 	lastoolsPath = "C:/lastools/bin/"
 
@@ -105,9 +76,3 @@ def main():
 	slopeslope = ndimage.generic_filter(slope,slopeFilter,size=3)
 	io.imsave("C:/bertud_temp/slopeslope.tif",slopeslope)
 
-
-if __name__ == '__main__':
-	main()
-
-
-print "BYE"
