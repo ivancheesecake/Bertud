@@ -105,61 +105,68 @@ def main():
 
             print("Got some work...")
 
-            dispatcher.updateWorkerStatus(WORKERID,'2')
+            # dispatcher.updateWorkerStatus(WORKERID,'2')
 
             #Use the data collected from the dispatcher
-            ndsm = item.data["ndsm"]
-            classified= item.data["classified"]
-            slope= item.data["slope"]
-            slopeslope= item.data["slopeslope"]
-
-            #Process the data
-            print "Generating Initial Mask..."
-            veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
-
-            print "Generating markers for Watershed segmentation..."
-
-            initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+            # ndsm = item.data["ndsm"]
+            # classified= item.data["classified"]
+            # slope= item.data["slope"]
+            # slopeslope= item.data["slopeslope"]
             
-            print "Performing Watershed segmentation..."
+            laz = item.data
+            with open("C:bertud_temp\pointcloud.laz", "wb") as file:
+                file.write(laz)
 
-            labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+            #Process laz
+            #codecodecode
 
-            print "Performing basic region merging..."
+            # #Process the data
+            # print "Generating Initial Mask..."
+            # veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
-            mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+            # print "Generating markers for Watershed segmentation..."
 
-            print "Performing basic boundary regularization..."
+            # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+            
+            # print "Performing Watershed segmentation..."
+
+            # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+
+            # print "Performing basic region merging..."
+
+            # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+
+            # print "Performing basic boundary regularization..."
         
-            pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
+            # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
 
-            print "Creating final mask and saving output raster..."
+            # print "Creating final mask and saving output raster..."
             
-            finalMask = ma.buildFinalMask(pieces,mergedMask)
+            # finalMask = ma.buildFinalMask(pieces,mergedMask)
 
-            #set the output to the item's final result
-            item.result = finalMask
-            #set the item's worker
-            item.processedBy = WORKERNAME
+            # #set the output to the item's final result
+            # item.result = finalMask
+            # #set the item's worker
+            # item.processedBy = WORKERNAME
             
-            #KAGEYAMA
-            #return the result to the dispatcher
-            try:
-                dispatcher.putResult(item)
-            except:
-                while True:
-                    #Try to reconnect to dispatcher
-                    try:
-                        print("Dispatcher not found. Reconnecting...")
-                        dispatcher._pyroReconnect()
-                    #Can't connect -> Sleep then retry again
-                    except Exception:
-                        time.sleep(1)
-                    #Reconnecting succesful
-                    else:
-                        dispatcher.putResult(item)
-                        print("Connected to dispatcher.")
-                        break
+            # #KAGEYAMA
+            # #return the result to the dispatcher
+            # try:
+            #     dispatcher.putResult(item)
+            # except:
+            #     while True:
+            #         #Try to reconnect to dispatcher
+            #         try:
+            #             print("Dispatcher not found. Reconnecting...")
+            #             dispatcher._pyroReconnect()
+            #         #Can't connect -> Sleep then retry again
+            #         except Exception:
+            #             time.sleep(1)
+            #         #Reconnecting succesful
+            #         else:
+            #             dispatcher.putResult(item)
+            #             print("Connected to dispatcher.")
+            #             break
 
             # dispatcher.putResult(item)
 
