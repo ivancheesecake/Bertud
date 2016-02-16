@@ -123,6 +123,11 @@ def main():
             print "Preparing Inputs..."
             pi.prepareInputs()
 
+            ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
+            classified = io.imread("C:\\bertud_temp\\classified.tif")
+            slope = io.imread("C:\\bertud_temp\\slope.tif")
+            slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
+
             print "Generating Initial Mask..."
             veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
