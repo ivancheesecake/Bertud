@@ -57,7 +57,7 @@ def inputfolder():
 		for f in os.listdir(path):
 			# print f
 			if f.endswith(".las") or f.endswith(".laz"):
-				files.append(f)
+				files.append(f[:-4])
     	# files=files[:-1]
     	retval['files']= files			
     			    	

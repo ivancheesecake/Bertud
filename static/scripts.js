@@ -88,17 +88,40 @@ $('#btn-source-folder').click(function(event) {
 			
 			if(resp.files.length >0){
 
-				files = resp.files;
-				console.log(files);
-				for(index in files){
-					htmlString = "<tr><td>"+files[index]+"</td><td><a href ='#' data-index='"++"'class='poplist'><i class='material-icons'>clear</i></a></td></tr>";
-					$(".files-table").append(htmlString);
-				}
+				files = resp.files;		
+				renderFiles(files);
 
+			}
+
+			else{
+				$(".files-table").html("");
 			}
 		}
 	});
 });
+
+function renderFiles(files){
+	$(".files-table").html("");
+
+	for(index in files){
+		htmlString = "<tr><td>"+files[index]+"</td><td><a href ='#' data-index='"+files[index]+"'class='poplist'><i class='material-icons'>clear</i></a></td></tr>";
+		$(".files-table").append(htmlString);
+	}
+
+	$(".poplist").click(function(event) {
+					
+		console.log($(this).data("index"))
+		index = files.indexOf($(this).data("index"));
+		console.log(index);
+		if (index > -1) {
+			files.splice(index, 1);
+		}	
+		console.log(files)
+		
+		$(this).parent().parent().remove();
+
+	});
+}
 
 $('#btn-add').click(function(event) {
 	alert("HERE");
