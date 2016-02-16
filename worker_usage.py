@@ -22,7 +22,7 @@ WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
 
 def main():
 	#connects to the dispatcher
-	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
+	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.23.41")
 	
 	# For UI Testing lang
 	dispatcher.updateWorkerStatus('1', 1)

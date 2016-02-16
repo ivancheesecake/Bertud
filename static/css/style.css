@@ -90,6 +90,8 @@ input{
 
 .files-table td{
 	border-radius: 0px;
+	padding-top:10px;
+	padding-bottom:10px;
 }
 .files-table tr:hover{
 	background-color: #bbdefb;

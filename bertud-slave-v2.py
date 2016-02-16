@@ -65,7 +65,7 @@ def main():
     print("This is worker %s" % WORKERNAME)
 
     #make connection to dispatcher server
-    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher")
+    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.23.41")
 
     #Loop for getting work
     while True:

@@ -27,7 +27,8 @@ atexit.register(exit_handler)
 def index():
 	
 	# Create a condition to check if these processes are running
-	subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
+	subprocess.Popen(["pyro4-ns","--host","169.254.23.41"])
+	# nameserverUri, nameserverDaemon, broadcastServer = Pyro4.naming.startNS(host="10.0.63.90")
 	subprocess.Popen(["python","dispatcher.py"])
 	return redirect(url_for('dashboard'))
 
@@ -39,7 +40,7 @@ def dashboard():
 @app.route('/listen')
 def listen():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
-	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@10.0.63.90")
+	dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.23.41")
 
 	return jsonify(dispatcher.getWorkerInfo())
 
