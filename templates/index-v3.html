@@ -115,6 +115,18 @@
 		
 										 <a id="btn-source-folder" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">folder_open</i></a>  
 									</div>
+								</div>
+
+								<div class="row">
+									<div class="col s12 m12 l12">
+										<!-- <p>No LAS/LAZ Files Selected</p> -->
+										<table class="files-table">
+											<!-- <tr>
+												<td>pt000120.laz</td>
+												<td><a href ="" class="poplist"><i class="material-icons">clear</i></a></td>
+											</tr> -->
+										</table>
+									</div>
 								</div>    
 						      </div>
 						    </li>
@@ -162,7 +174,7 @@
 
 								 		<div class="col s7 m7 l7 pc-status">
 								 			<p id="status-pc1" class="status">
-								 				Status: Ready
+								 				Status: Disconnected
 								 			</p>
 								 			<p id="cpu-pc1" class="cpu">
 								 				CPU: 22%
@@ -193,108 +205,7 @@
 	<script type="text/javascript" src="{{url_for('static',filename='jquery-1.12.0.min.js')}}"></script>
 	<script type="text/javascript" src="{{url_for('static',filename='materialize.min.js')}}"></script>
 
-	<script type="text/javascript">
-
-	// Initialize UI
-
-	$(document).ready(function() {
-
-		$('select').material_select();
-		$("#main").height($(window).height()-64);
-		// $("#queue-content").height($(window).height()-200);
-		$(".collapsible-body").css('max-height',$(window).height()-300);
-
-	});
-
-	// Initialize Services
-
-	$(document).ready(function() {
-		
-		$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/raw")
-
-		// Make this a loop for later
-
-		$("#cpu-pc1").hide();
-		$("#ram-pc1").hide();
-
-		// setInterval(function(){
-
-		// 	$.ajax({
-		// 		url: 'http://127.0.0.1:5000/listen',
-		// 		type: 'GET',
-		// 		success: function(resp){
-		// 			console.log(resp['1'].cpu,resp['1'].ram);
-		// 			update_pcs(resp);
-
-		// 		}
-		// 		});
-		// 	}, 5000);
-
-
-	});
-		
-	function update_pcs(obj){
-
-		$.each(obj, function(index,o){
-
-			if(o.status==0 || o.cpu==-1){
-
-				$("#status-pc"+index).html("Status: Disconnected");
-				$("#panel-pc"+index).addClass('red')
-				$("#panel-pc"+index).removeClass('green')
-
-				$("#cpu-pc"+index).hide();
-				$("#ram-pc"+index).hide();
-			}
-
-			else{
-
-				if(o.status==1){
-					$("#status-pc"+index).html("Status: Ready");
-					$("#panel-pc"+index).addClass('green')
-					$("#panel-pc"+index).removeClass('red')
-				}
-				else if(o.status==2){
-					$("#status-pc"+index).html("Status: Processing");
-
-				}
-
-				$("#cpu-pc"+index).show()
-				$("#ram-pc"+index).show()
-				$("#cpu-pc"+index).html("CPU: "+o.cpu+"%");
-				$("#ram-pc"+index).html("RAM: "+o.ram+"%");
-			}	
-		});
-
-
-	}
-	
-	
-
-	//E:\FeatureExtractionV4\pipelinev6\inputs\raw
-
-	$('#btn-source-folder').click(function(event) {
-
-		// alert("HERE");
-		data = {"sourcefolder": $("#source-folder").val()}
-		console.log(data)
-		$.ajax({
-			url: 'http://127.0.0.1:5000/inputfolder',
-			type: 'POST',
-			dataType: 'json',
-			data: {"sourcefolder": $("#source-folder").val()},
-
-			success: function(resp){
-				console.log(resp);
-				console.log("HERE");
-			}
-		});
-	});
-
-	$('#btn-add').click(function(event) {
-		alert("HERE");
-	});	
-
+	<script type="text/javascript" src="{{url_for('static',filename='scripts.js')}}">
 
 	</script>
 </body>

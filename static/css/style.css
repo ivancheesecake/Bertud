@@ -37,6 +37,10 @@ label {
 	padding:15px;
 }
 
+.collapsible-body p {
+	padding:0px;
+}
+
 ::-webkit-scrollbar {
       width: 10px;
 }
@@ -82,6 +86,13 @@ input{
 .btn-small{
 	margin-top: 25px;
 	/*padding: 10px!important;*/
+}
+
+.files-table td{
+	border-radius: 0px;
+}
+.files-table tr:hover{
+	background-color: #bbdefb;
 }
 
 /* Right styles*/

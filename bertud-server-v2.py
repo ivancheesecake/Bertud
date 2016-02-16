@@ -50,14 +50,14 @@ def inputfolder():
 	dirExists = os.path.isdir(path)
 	retval = {'exists':dirExists,'files':""}
 		
-	files=""
+	files=[]
 
 	if(dirExists):
 		for f in os.listdir(path):
 			# print f
 			if f.endswith(".las") or f.endswith(".laz"):
-				files += f+","
-    	files=files[:-1]
+				files.append(f)
+    	# files=files[:-1]
     	retval['files']= files			
     			    	
 	return jsonify(retval)
