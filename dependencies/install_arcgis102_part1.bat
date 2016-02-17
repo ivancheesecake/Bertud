@@ -1,1 +1,1 @@
-C:\Python27\ArcGIS10.1\python.exe get-pip.py
+C:\Python27\ArcGIS10.2\python.exe get-pip.py
