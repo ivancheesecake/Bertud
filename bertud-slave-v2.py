@@ -9,14 +9,19 @@ import PrepareInputs as pi
 import BoundaryRegularizationV2 as br
 import time
 import wx
+import json
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 #define worker identity
 
-# Gawing dynamic next time, read from config file
-WORKERID = '1'
+with open("slave_config.json","r") as f:
+        configfile = f.read()
+
+    config = json.loads(configfile) 
+
+WORKERID = str(config["workerID"])
 
 WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
 
@@ -66,7 +71,7 @@ def main():
     print("This is worker %s" % WORKERNAME)
 
     #make connection to dispatcher server
-    dispatcher = Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.23.41")
+    dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["ip"])
 
     #Loop for getting work
     while True:

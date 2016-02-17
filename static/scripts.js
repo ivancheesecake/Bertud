@@ -35,7 +35,8 @@ $(document).ready(function() {
 function update_pcs(obj){
 
 	$.each(obj, function(index,o){
-
+		console.log(index);
+		console.log(o.status);
 		if(o.status==0 || o.cpu==-1){
 
 			$("#status-pc"+index).html("Status: Disconnected");

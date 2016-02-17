@@ -16,7 +16,7 @@ SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 def main():
     #connect to dispatcher
-    with Pyro4.core.Proxy("PYRONAME:example.distributed.dispatcher@169.254.23.41") as dispatcher:
+    with Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@169.254.23.41") as dispatcher:
         placework(dispatcher)
         # collectresults(dispatcher)
 

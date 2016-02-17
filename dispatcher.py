@@ -7,7 +7,9 @@ import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
 import copy
+import sys
 
+ip = sys.argv[1]
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
@@ -71,6 +73,6 @@ class DispatcherQueue(object):
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(
     {
-        DispatcherQueue(): "example.distributed.dispatcher"
+        DispatcherQueue(): "bertud.dispatcher"
     },
-    ns=True, verbose=True, host="169.254.23.41")
+    ns=True, verbose=True, host=ip)
