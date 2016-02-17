@@ -7,9 +7,11 @@ $(document).ready(function() {
 	// Initialize UI
 	$('select').material_select();
 	$("#main").height($(window).height()-64);
-	$(".collapsible-body").css('max-height',$(window).height()-300);
+	$(".collapsible-body").css('max-height',$(window).height()-330);
+	$(".collapsible-container").css('height',$(window).height()-200);
 
-	$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/raw")
+	$("#source-folder").val("C:/Data/LAZ_FILES")
+	$("#dest-folder").val("E:/FeatureExtractionOutputs")
 
 	// Loop this later
 	$("#cpu-pc1").hide();
@@ -124,6 +126,6 @@ function renderFiles(files){
 	});
 }
 
-$('#btn-add').click(function(event) {
+$('#add-queue').click(function(event) {
 	alert("HERE");
 });	

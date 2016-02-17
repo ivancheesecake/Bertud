@@ -100,6 +100,7 @@
 
 					</div>
 					<div id="files" class="col s12">
+						<div class="row collapsible-container">
 					 	 <ul class="collapsible" data-collapsible="accordion">
 						    <li>
 						      <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Select LAS/LAZ Files to be Processed</div>
@@ -112,8 +113,8 @@
 										</div>
 									</div>
 									<div class="col s1 m1 l1">
-		
-										 <a id="btn-source-folder" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">folder_open</i></a>  
+									
+										 <a id="btn-source-folder" class="btn-floating btn-small waves-effect waves-light red tooltipped" data-position="bottom"  data-tooltip="Open Folder" data-delay="25"><i class="material-icons">folder_open</i></a>  
 									</div>
 								</div>
 
@@ -135,7 +136,7 @@
 						      <div class="collapsible-body">
 
 						      	<div class="row">
-									<div class="col s11 m11 l11">
+									<div class="col s12 m12 l12">
 										<div class="input-field">
 											<input id="dest-folder" type="text" class="validate">
 											<label for="dest-folder">Destination Folder</label>
@@ -146,11 +147,20 @@
 
 						      </div>
 						    </li>
-						    <li>
+
+
+						    <!-- <li>
 						      <div class="collapsible-header"><i class="material-icons">settings</i>Advanced Settings</div>
 						      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-						    </li>
+						    </li> -->
 						  </ul>
+						</div>
+						<div class="row">
+							<div class="col s12 m12 l12" style="text-align:right">
+							   <a id="add-queue" class="btn-floating btn-large waves-effect waves-light red z-depth-2 tooltipped" data-position="right"  data-tooltip="Add to Queue" data-delay="25"><i class="material-icons">add</i></a>
+							</div>
+						</div>
+
 
 					 </div>
    					 <div id="queue" class="col s12">Test 2</div>
