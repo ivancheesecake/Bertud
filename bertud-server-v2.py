@@ -6,10 +6,12 @@ import os
 import time
 import json
 import sys
+
 # from Pyro4.util import SerializerBase
 # import workitem
 
 from flask import Flask,render_template,url_for,redirect,jsonify,request
+
 app = Flask(__name__)
 
 ip = ""
@@ -31,18 +33,25 @@ atexit.register(exit_handler)
 def index():
 	print ip
 	# Create a condition to check if these processes are running
+	
+	for proc in psutil.process_iter():
+	    if proc.name() == "pyro4-ns.exe":
+	    	return redirect(url_for('dashboard'))
+
 	subprocess.Popen([pythonPath+"/Scripts/pyro4-ns","--host",ip])
-	# nameserverUri, nameserverDaemon, broadcastServer = Pyro4.naming.startNS(host="10.0.63.90")
 	subprocess.Popen([pythonPath+"python","dispatcher.py",ip])
+	
 	return redirect(url_for('dashboard'))
+				
+	
 
 @app.route('/dashboard')
 def dashboard():
 	# p = subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
 	return render_template("index-v3.html")
 
-@app.route('/listen')
-def listen():
+@app.route('/status')
+def status():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip)
 

@@ -1,4 +1,5 @@
 files = []
+queue = []
 
 // Initialize page
 
@@ -9,6 +10,7 @@ $(document).ready(function() {
 	$("#main").height($(window).height()-64);
 	$(".collapsible-body").css('max-height',$(window).height()-330);
 	$(".collapsible-container").css('height',$(window).height()-200);
+	$("#queue").css('height',$(window).height()-120);
 
 	$("#source-folder").val("C:/Data/LAZ_FILES")
 	$("#dest-folder").val("E:/FeatureExtractionOutputs")
@@ -18,18 +20,18 @@ $(document).ready(function() {
 	$("#ram-pc1").hide();
 
 	// Update
-	setInterval(function(){
+	// setInterval(function(){
 
-		$.ajax({
-			url: 'http://127.0.0.1:5000/listen',
-			type: 'GET',
-			success: function(resp){
-				console.log(resp['1'].cpu,resp['1'].ram);
-				update_pcs(resp);
+		// $.ajax({
+		// 	url: 'http://127.0.0.1:5000/status',
+		// 	type: 'GET',
+		// 	success: function(resp){
+		// 		console.log(resp['1'].cpu,resp['1'].ram);
+		// 		update_pcs(resp);
 
-			}
-			});
-		}, 5000);
+		// 	}
+		// 	});
+		// }, 5000);
 
 
 });
@@ -126,6 +128,61 @@ function renderFiles(files){
 	});
 }
 
+$('#queue-tab').click(function(event){
+	$('#queue-badge').remove();
+});
+
 $('#add-queue').click(function(event) {
-	alert("HERE");
+	
+	// Check list of files
+	emptyList = false;
+	if(files.length==0){
+		emptyList = true;
+		Materialize.toast('No files selected.', 4000,'red lighten-1')
+	}
+
+	// Check if output directory exists
+	directoryExists = false;
+	data = {"sourcefolder": $("#source-folder").val()}
+	
+	$.ajax({
+		url: 'http://127.0.0.1:5000/inputfolder',
+		type: 'POST',
+		dataType: 'json',
+		data: {"sourcefolder": $("#dest-folder").val()},
+
+		success: function(resp){
+
+				directoryExists = resp.exists;
+				// console.log(directoryExists)
+				if(!directoryExists)
+					Materialize.toast('Invalid Output Directory.', 4000,'red lighten-1')
+
+				// Add to Queue
+				console.log(emptyList)
+				console.log(directoryExists)
+
+				if(!emptyList && directoryExists){
+
+					console.log("Add to queue.");
+
+					path = $('#source-folder').val();
+
+					for(index in files){
+						queue.push(path+"/"+files[index]+".laz");
+						htmlString = "<li class='collection-item'>"+path+"/"+files[index]+".laz</li>"
+						$("#queue-content").append(htmlString);
+						
+					}
+
+					htmlString = "<span id='queue-badge' class='badge'>+"+files.length+"</span></a>";
+					$("#queue-tab").append(htmlString);
+					$(".files-table").html('');
+					Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1')
+		
+				}
+			}
+	});
+
+
 });	
