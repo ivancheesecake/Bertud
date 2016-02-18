@@ -23,7 +23,7 @@ if sys.version_info < (3, 0):
 def main():
 	#connects to the dispatcher
 	
-	with open("slave_config.json","r") as f:
+	with open("config/slave_config.json","r") as f:
 		configfile = f.read()
 
 	config = json.loads(configfile)	

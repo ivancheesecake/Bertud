@@ -16,14 +16,12 @@ SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 #define worker identity
 
-with open("slave_config.json","r") as f:
+with open("config/slave_config.json","r") as f:
         configfile = f.read()
 
     config = json.loads(configfile) 
 
 WORKERID = str(config["workerID"])
-
-WORKERNAME = "Worker_%d@%s" % (os.getpid(), socket.gethostname())
 
 TRAY_TOOLTIP = 'Bertud Slave'
 

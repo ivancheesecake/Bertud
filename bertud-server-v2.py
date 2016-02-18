@@ -79,7 +79,7 @@ def inputfolder():
 
 
 if __name__ == '__main__':
-	with open("config.json","r") as f:
+	with open("config/config.json","r") as f:
 		configfile = f.read()
 
 	config = json.loads(configfile)	

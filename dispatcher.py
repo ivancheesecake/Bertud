@@ -8,6 +8,7 @@ from Pyro4.util import SerializerBase
 from workitem import Workitem
 import copy
 import sys
+import pickle
 
 ip = sys.argv[1]
 
@@ -17,15 +18,24 @@ SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 class DispatcherQueue(object):
     def __init__(self):
-        self.workqueue = queue.Queue()
-        self.resultqueue = queue.Queue()
+        self.Qwaiting = pickle.load( open( "config/work_queue.p", "rb" ) )
+        self.Qprocessing = {}
+        self.Qfinished = {}
                             #id  #attributes
         self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
 
 
     #function that receives work from client
-    def putWork(self, item):
-        self.workqueue.put(item)
+    def putWork(self, item_id, item):
+        self.Qwaiting[item_id] = item                   #ASSUMING NA DICT THEN FROM SERVER SI ITEM
+        self.updateWorkFile()
+
+    #function that updates the work_queue file
+    def updateWorkFile(self):
+        clone = self.Qwaiting
+        clone.update(self.Qprocessing)
+
+        pickle.dump(clone, open( "config/work_queue.p", "wb" ))
 
     #slaves use this to check for available works
     def getWork(self, timeout=5):
