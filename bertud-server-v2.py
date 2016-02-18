@@ -79,11 +79,23 @@ def inputfolder():
 @app.route('/addToQueue', methods=['POST'])
 def addToQueue():
 
-	files = json.loads(request.form.get("files"))
+	items = json.loads(request.form.get("files"))
 	outputPath = request.form.get("outputPath")
+	current_id = 0
+	# Read max_id from file
 
-	print files[0]
-	print outputPath
+	with open("config/max_id.json","r") as f:
+		current_id = int(json.loads(f.read())["id"])
+
+	for item in items:
+		current_id+=1
+
+		#Add To Queue
+
+	with open("config/max_id.json","w") as f:	
+		f.write(json.dumps({"id":str(current_id)}))
+
+
 	return jsonify({"success":"true"})
 
 

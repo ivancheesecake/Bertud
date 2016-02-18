@@ -12,7 +12,7 @@ $(document).ready(function() {
 	$(".collapsible-container").css('height',$(window).height()-200);
 	$("#queue").css('height',$(window).height()-120);
 
-	$("#source-folder").val("C:/Data/LAZ_FILES")
+	$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/raw")
 	$("#dest-folder").val("E:/FeatureExtractionOutputs")
 
 	// Loop this later
