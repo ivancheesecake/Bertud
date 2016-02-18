@@ -76,6 +76,16 @@ def inputfolder():
     			    	
 	return jsonify(retval)
 
+@app.route('/addToQueue', methods=['POST'])
+def addToQueue():
+
+	files = json.loads(request.form.get("files"))
+	outputPath = request.form.get("outputPath")
+
+	print files[0]
+	print outputPath
+	return jsonify({"success":"true"})
+
 
 
 if __name__ == '__main__':

@@ -77,6 +77,36 @@ function update_pcs(obj){
 
 //E:\FeatureExtractionV4\pipelinev6\inputs\raw
 
+// $('#btn-source-folder').click(function(event) {
+
+// 	// alert("HERE");
+// 	data = {"sourcefolder": $("#source-folder").val()}
+// 	console.log(data)
+// 	$.ajax({
+// 		url: 'http://127.0.0.1:5000/inputfolder',
+// 		type: 'POST',
+// 		dataType: 'json',
+// 		data: {"sourcefolder": $("#source-folder").val()},
+
+// 		success: function(resp){
+
+			
+// 			if(resp.files.length >0){
+
+// 				files = resp.files;		
+// 				renderFiles(files);
+
+// 			}
+
+// 			else{
+// 				$(".files-table").html("");
+// 				Materialize.toast('No LAS/LAZ Files Found in Input Directory Specified.', 4000,'red lighten-1')
+
+// 			}
+// 		}
+// 	});
+// });
+
 $('#btn-source-folder').click(function(event) {
 
 	// alert("HERE");
@@ -100,16 +130,21 @@ $('#btn-source-folder').click(function(event) {
 
 			else{
 				$(".files-table").html("");
+				Materialize.toast('No LAS/LAZ Files Found in Input Directory Specsified.', 4000,'red lighten-1')
+
 			}
 		}
 	});
 });
 
+
+
 function renderFiles(files){
 	$(".files-table").html("");
 
 	for(index in files){
-		htmlString = "<tr><td>"+files[index]+"</td><td><a href ='#' data-index='"+files[index]+"'class='poplist'><i class='material-icons'>clear</i></a></td></tr>";
+		// htmlString = "<tr><td>"+files[index]+"</td><td><a href ='#' data-index='"+files[index]+"'class='poplist'><i class='material-icons'>clear</i></a></td></tr>";
+		htmlString = "<li class='collection-item'><div>"+files[index]+"<a class='secondary-content poplist' href ='#!' data-index='"+files[index]+"'><i class='material-icons'>clear</i></a></div></li>";
 		$(".files-table").append(htmlString);
 	}
 
@@ -118,12 +153,14 @@ function renderFiles(files){
 		console.log($(this).data("index"))
 		index = files.indexOf($(this).data("index"));
 		console.log(index);
+
 		if (index > -1) {
 			files.splice(index, 1);
 		}	
-		console.log(files)
+		console.log(files);
 		
-		$(this).parent().parent().remove();
+		$(this).parent().parent().fadeOut('fast',function(){$(this).remove();});
+		// $(this).parent().parent().remove();
 
 	});
 }
@@ -131,6 +168,62 @@ function renderFiles(files){
 $('#queue-tab').click(function(event){
 	$('#queue-badge').remove();
 });
+
+// $('#add-queue').click(function(event) {
+	
+// 	// Check list of files
+// 	emptyList = false;
+// 	if(files.length==0){
+// 		emptyList = true;
+// 		Materialize.toast('No files selected.', 4000,'red lighten-1')
+// 	}
+
+// 	// Check if output directory exists
+// 	directoryExists = false;
+// 	data = {"sourcefolder": $("#source-folder").val()}
+	
+// 	$.ajax({
+// 		url: 'http://127.0.0.1:5000/inputfolder',
+// 		type: 'POST',
+// 		dataType: 'json',
+// 		data: {"sourcefolder": $("#dest-folder").val()},
+
+// 		success: function(resp){
+
+// 				directoryExists = resp.exists;
+// 				// console.log(directoryExists)
+// 				if(!directoryExists)
+// 					Materialize.toast('Invalid Output Directory.', 4000,'red lighten-1')
+
+// 				// Add to Queue
+// 				console.log(emptyList)
+// 				console.log(directoryExists)
+
+// 				if(!emptyList && directoryExists){
+
+// 					console.log("Add to queue.");
+
+// 					path = $('#source-folder').val();
+
+// 					for(index in files){
+// 						queue.push(path+"/"+files[index]+".laz");
+// 						htmlString = "<li class='collection-item'>"+path+"/"+files[index]+".laz</li>"
+// 						$("#queue-content").append(htmlString);
+						
+// 					}
+
+// 					htmlString = "<span id='queue-badge' class='badge'>+"+files.length+"</span></a>";
+// 					$("#queue-tab").append(htmlString);
+// 					$(".files-table").html('');
+// 					Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1')
+		
+// 				}
+// 			}
+// 	});
+
+
+// });	
+
 
 $('#add-queue').click(function(event) {
 	
@@ -150,39 +243,44 @@ $('#add-queue').click(function(event) {
 		type: 'POST',
 		dataType: 'json',
 		data: {"sourcefolder": $("#dest-folder").val()},
+	}).success(function(resp){
 
-		success: function(resp){
+		console.log("directoryExists "+resp.exists)
+		console.log("emptyList "+emptyList)
+		directoryExists = resp.exists;
 
-				directoryExists = resp.exists;
-				// console.log(directoryExists)
-				if(!directoryExists)
-					Materialize.toast('Invalid Output Directory.', 4000,'red lighten-1')
+		inputPath = $('#source-folder').val();
+		outputPath = $('#dest-folder').val();
 
-				// Add to Queue
-				console.log(emptyList)
-				console.log(directoryExists)
+		if(!emptyList && directoryExists)
+			addToQueue(files,inputPath,outputPath);
 
-				if(!emptyList && directoryExists){
-
-					console.log("Add to queue.");
-
-					path = $('#source-folder').val();
-
-					for(index in files){
-						queue.push(path+"/"+files[index]+".laz");
-						htmlString = "<li class='collection-item'>"+path+"/"+files[index]+".laz</li>"
-						$("#queue-content").append(htmlString);
-						
-					}
-
-					htmlString = "<span id='queue-badge' class='badge'>+"+files.length+"</span></a>";
-					$("#queue-tab").append(htmlString);
-					$(".files-table").html('');
-					Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1')
-		
-				}
-			}
 	});
 
 
 });	
+
+function addToQueue(files,inputPath,outputPath){
+
+	// No update of UI Yet
+	for(index in files){
+		queue.push(inputPath+"/"+files[index]+".laz");		
+	}
+
+	data = {"files": JSON.stringify(queue), "outputPath": outputPath};
+	console.log(data)
+	$.ajax({
+		url: 'http://127.0.0.1:5000/addToQueue',
+		type: 'POST',
+		dataType: 'json',
+		data: data
+	}).success(function(resp){
+
+		//Update UI, perform AJAX shit
+
+
+		Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1');
+	});
+
+	// Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1');
+}
