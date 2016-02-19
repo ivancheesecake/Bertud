@@ -26,7 +26,7 @@ def placework(dispatcher):
 
     #Read LAZ input file then send to dispatcher
     with open("E:\FeatureExtractionV4\lasprocessing\ground\pt000002.laz", "rb") as file:
-        item = Workitem(1, file.read())                 #ID(FIRST PARAM) SHOULD BE UNIQUE -> CODE CODE CODE
+        item = Workitem(1, file.read())                 #CHANGE THE PARAMETERS
 
     # inputs = {}
     # inputs["classified"] = io.imread('bertud_inputs\\pt000127_classified.tif')

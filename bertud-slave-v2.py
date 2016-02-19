@@ -75,7 +75,7 @@ def main():
     while True:
         #Check for work in dispatcher
         try:
-            item = dispatcher.getWork()
+            item, laz = dispatcher.getWork(WORKERID)
         #If there are no work available
         except ValueError:
             print("no work available yet.")
@@ -117,7 +117,8 @@ def main():
             # slope= item.data["slope"]
             # slopeslope= item.data["slopeslope"]
             
-            laz = item.data
+            item.start_time = time.time()
+
             with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
                 file.write(laz)
 
@@ -155,14 +156,14 @@ def main():
             finalMask = ma.buildFinalMask(pieces,mergedMask)
 
             #set the output to the item's final result
-            item.result = finalMask
+            # item.result = finalMask
             #set the item's worker
-            item.processedBy = WORKERNAME
+            item.end_time = time.time()
             
             #KAGEYAMA
             #return the result to the dispatcher
             try:
-                dispatcher.putResult(item)
+                dispatcher.putResult(item, finalMask)
             except:
                 while True:
                     #Try to reconnect to dispatcher
@@ -174,11 +175,11 @@ def main():
                         time.sleep(1)
                     #Reconnecting succesful
                     else:
-                        dispatcher.putResult(item)
+                        dispatcher.putResult(item, finalMask)
                         print("Connected to dispatcher.")
                         break
 
-            dispatcher.putResult(item)
+            # dispatcher.putResult(item)
 
             #set taskbar's icon to green -> available
             taskbar.set_icon(TRAY_ICON_GREEN)
