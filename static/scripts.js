@@ -1,5 +1,6 @@
 files = []
 queue = []
+queueShort = []
 
 // Initialize page
 
@@ -10,14 +11,50 @@ $(document).ready(function() {
 	$("#main").height($(window).height()-64);
 	$(".collapsible-body").css('max-height',$(window).height()-330);
 	$(".collapsible-container").css('height',$(window).height()-200);
-	$("#queue").css('height',$(window).height()-120);
+	$("#queue").css('height',$(window).height()-118);
+	$("#queue-content").css('height',$(window).height()-192);
+	$("#queue-content").parent().css('height',$(window).height()-192);
 
-	$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/raw")
+	//Madami
+	//$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/raw")
+
+	$("#source-folder").val("E:/testinput")
 	$("#dest-folder").val("E:/FeatureExtractionOutputs")
 
 	// Loop this later
 	$("#cpu-pc1").hide();
 	$("#ram-pc1").hide();
+
+	// Load initial work queue
+
+	$.ajax({
+		url: 'http://127.0.0.1:5000/initializeQueue',
+		type: 'POST',
+		dataType: 'json',
+	})
+	.success(function(resp) {
+		console.log("HERE");
+		
+		queue = resp.queue;
+		console.log(queue)
+		for(item in queue){
+			tokens = queue[item].path.split("/");
+			fname = tokens[tokens.length-1];
+			// Currently being processed
+			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
+			htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue'><i class='queue-clear material-icons'>clear</i></a></div></li>"
+			$("#queue-content").append(htmlString);
+			
+		}
+
+		$(".remove-from-queue").click(function(event){
+			alert($(this).data("id"));
+		});
+
+	}).error(function() {
+		console.log("HERE");
+	});
+	
 
 	// Update
 	// setInterval(function(){
@@ -33,7 +70,7 @@ $(document).ready(function() {
 		// 	});
 		// }, 5000);
 
-
+	
 });
 	
 function update_pcs(obj){
@@ -130,7 +167,7 @@ $('#btn-source-folder').click(function(event) {
 
 			else{
 				$(".files-table").html("");
-				Materialize.toast('No LAS/LAZ Files Found in Input Directory Specsified.', 4000,'red lighten-1')
+				Materialize.toast('No LAS/LAZ Files Found in Input Directory Specified.', 4000,'red lighten-1')
 
 			}
 		}
@@ -264,10 +301,11 @@ function addToQueue(files,inputPath,outputPath){
 
 	// No update of UI Yet
 	for(index in files){
-		queue.push(inputPath+"/"+files[index]+".laz");		
+		queue.push(inputPath+"/"+files[index]+".laz");	
+		queueShort.push(files[index])	
 	}
 
-	data = {"files": JSON.stringify(queue), "outputPath": outputPath};
+	data = {"files": JSON.stringify(queue), "filesShort":JSON.stringify(queueShort),"outputPath": outputPath};
 	console.log(data)
 	$.ajax({
 		url: 'http://127.0.0.1:5000/addToQueue',
@@ -275,12 +313,39 @@ function addToQueue(files,inputPath,outputPath){
 		dataType: 'json',
 		data: data
 	}).success(function(resp){
+		queue = []
+		queueShort = []
+		//Update UI
+		$("#queue-content").html("")
+		queue = resp.queue;
+		for(item in queue){
+			tokens = queue[item].path.split("/");
+			fname = tokens[tokens.length-1];
+			// Currently being processed
+			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
+			htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue'><i class='queue-clear material-icons'>clear</i></a></div></li>"
+			$("#queue-content").append(htmlString);
+			
+		}
 
-		//Update UI, perform AJAX shit
+		$(".remove-from-queue").click(function(event){
+			alert($(this).data("id"));
+		});
 
+		htmlString = "<span id='queue-badge' class='badge'>+"+files.length+"</span></a>";
+		$("#queue-tab").append(htmlString);
 
 		Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1');
+		console.log(resp)
+
+		queue = []
+		queueShort = []
 	});
+
 
 	// Materialize.toast(files.length+' Files Added to Queue.', 4000,'green lighten-1');
 }
+
+$("#view-logs").click(function(event) {
+	  $('#logs-modal').openModal();
+});

@@ -88,15 +88,20 @@ input{
 	color: #000000;
 }
 
-#queue{
-	overflow: scroll;
+#queue-content{
+	overflow: visible!important;
 }
+
 
 a .badge{
 	background-color: #66bb6a;
 	color: #fff;
 	height: 50px;
 	
+}
+
+.queue-clear{
+	color: black;
 }
 
 /* Right styles*/

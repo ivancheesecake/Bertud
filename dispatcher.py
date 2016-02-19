@@ -3,26 +3,33 @@ try:
     import queue
 except ImportError:
     import Queue as queue
+import os
+os.environ["PYRO_LOGFILE"] = "pyro.log"
+os.environ["PYRO_LOGLEVEL"] = "DEBUG"
+
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
 import copy
 import sys
 import pickle
+from skimage import io
+
 
 ip = sys.argv[1]
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
-
+global work_q 
 class DispatcherQueue(object):
+    
     def __init__(self):
         self.Qwaiting = queue.Queue()
 
         #load past works and place them to Qwaiting
-        work_Q = pickle.load(open("config/work_queque.p", "rb"))
-        for key, item in work_Q.item():
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        for key, item in work_q.items():
             self.Qwaiting.put(item)
 
         self.Qprocessing = {}
@@ -38,11 +45,13 @@ class DispatcherQueue(object):
     def putWork(self, item):
         #add item to queue
         self.Qwaiting.put(item)
+        # print self.Qwaiting
 
         #update the work_queue item for backup
-        work_Q = pickle.load(open("config/work_queque.p", "rb"))
-        work_Q[str(item.itemId)] = item
-        pickle.dump(work_Q, open("config/work_queque.p", "wb"))
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        work_q[str(item.itemId)] = item
+        print self.Qwaiting
+        pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
     #slaves use this to check for available works
     def getWork(self, worker_ID, timeout=5):
@@ -50,12 +59,17 @@ class DispatcherQueue(object):
             #give work to slave
             item = self.Qwaiting.get(block=True, timeout=timeout)
             item.worker_id = worker_ID                  #set worker id to item
+            print item.worker_id
+            print item.path
+            print item.output_path
             self.Qprocessing[str(item.itemId)] = item   #add item to the queue for currently processing
 
-            #read the input file and return them to worker
+            # #read the input file and return them to worker
             with open(item.path, "rb") as file:
+                print "TANG INA NANDITO TAYO"
                 return item, file.read()
 
+            # return "HI FANS","HELLO"   
         except queue.Empty:
             raise ValueError("no items in queue")
 
@@ -65,9 +79,9 @@ class DispatcherQueue(object):
         self.Qfinished[str(item.itemId)] = item
 
         #update the work_queue item for backup
-        work_Q = pickle.load(open("config/work_queque.p", "rb"))
-        self.work_Q.pop(str(item.itemId), None)
-        pickle.dump(work_Q, open("config/work_queque.p", "wb"))
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        work_q.pop(str(item.itemId), None)
+        pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
         #update finished works
         work_F = pickle.load(open("config/finished_work.p", "rb"))
@@ -75,8 +89,12 @@ class DispatcherQueue(object):
         pickle.dump(work_F, open("config/finished_work.p", "wb"))
 
         #write output file
-        with open(item.output_path) as file:
-                file.write(output)
+ 
+        print item.output_path
+        io.imsave(item.output_path,output)
+
+        # with open(item.output_path,"wb") as file:
+        #         file.write(output)
 
         # self.resultqueue.put(item)
 

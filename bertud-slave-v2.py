@@ -1,6 +1,8 @@
 import os
 import socket
 import sys
+os.environ["PYRO_LOGFILE"] = "pyro.log"
+os.environ["PYRO_LOGLEVEL"] = "DEBUG"
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
@@ -10,27 +12,21 @@ import BoundaryRegularizationV2 as br
 import time
 import wx
 import json
+from skimage import io
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 #define worker identity
 
-with open("config/slave_config.json","r") as f:
-        configfile = f.read()
-
-    config = json.loads(configfile) 
-
-WORKERID = str(config["workerID"])
-
 TRAY_TOOLTIP = 'Bertud Slave'
 
 #Indicates that there are no connection between the slave and the dispatcher
-TRAY_ICON_GRAY = 'gray.png'
+TRAY_ICON_GRAY = 'img/white.png'
 #Indicates that the slave is free of work
-TRAY_ICON_GREEN = 'green.png'
+TRAY_ICON_GREEN = 'img/green.png'
 #Indicates that the slave is working
-TRAY_ICON_RED = 'red.png'
+TRAY_ICON_RED = 'img/red.png'
 
 class BertudTaskBarIcon(wx.TaskBarIcon):
     def __init__(self):
@@ -55,7 +51,7 @@ class BertudTaskBarIcon(wx.TaskBarIcon):
 
     #balloon - starting work
     def balloon_work(self):
-        self.ShowBalloon("", "Hello " + WORKERNAME + ", you are being used by BERTUD ")
+        self.ShowBalloon("", "Hello Human, you are being used by BERTUD ")
 
     #balloon - slave initiated
     def balloon_running(self):
@@ -63,18 +59,26 @@ class BertudTaskBarIcon(wx.TaskBarIcon):
 
 def main():
     #instantiate application
+
+    with open("config/slave_config.json","r") as f:
+        configfile = f.read()
+        config = json.loads(configfile) 
+
+    print config
+    WORKERID = str(config["workerID"])
     app = wx.PySimpleApp()
     taskbar = BertudTaskBarIcon()
 
-    print("This is worker %s" % WORKERNAME)
+    # print("This is worker %s" % WORKERNAME)
 
     #make connection to dispatcher server
-    dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["ip"])
+    dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["dispatcherIP"])
 
     #Loop for getting work
     while True:
         #Check for work in dispatcher
         try:
+            print "HERE"
             item, laz = dispatcher.getWork(WORKERID)
         #If there are no work available
         except ValueError:
@@ -108,10 +112,10 @@ def main():
             taskbar.balloon_work()
 
             print("Got some work...")
+            # print item
+            dispatcher.updateWorkerStatus(WORKERID,'2')
 
-            # dispatcher.updateWorkerStatus(WORKERID,'2')
-
-            #Use the data collected from the dispatcher
+            # Use the data collected from the dispatcher
             # ndsm = item.data["ndsm"]
             # classified= item.data["classified"]
             # slope= item.data["slope"]
@@ -124,37 +128,37 @@ def main():
 
             # #Process the data
             
-            print "Preparing Inputs..."
-            pi.prepareInputs()
+            # print "Preparing Inputs..."
+            # pi.prepareInputs()
 
-            ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
-            classified = io.imread("C:\\bertud_temp\\classified.tif")
-            slope = io.imread("C:\\bertud_temp\\slope.tif")
-            slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
+            # ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
+            # classified = io.imread("C:\\bertud_temp\\classified.tif")
+            # slope = io.imread("C:\\bertud_temp\\slope.tif")
+            # slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
 
-            print "Generating Initial Mask..."
-            veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
+            # print "Generating Initial Mask..."
+            # veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
-            print "Generating markers for Watershed segmentation..."
+            # print "Generating markers for Watershed segmentation..."
 
-            initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+            # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
             
-            print "Performing Watershed segmentation..."
+            # print "Performing Watershed segmentation..."
 
-            labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+            # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
 
-            print "Performing basic region merging..."
+            # print "Performing basic region merging..."
 
-            mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+            # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
 
-            print "Performing basic boundary regularization..."
+            # print "Performing basic boundary regularization..."
         
-            pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
+            # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
 
-            print "Creating final mask and saving output raster..."
+            # print "Creating final mask and saving output raster..."
             
-            finalMask = ma.buildFinalMask(pieces,mergedMask)
-
+            # finalMask = ma.buildFinalMask(pieces,mergedMask)
+            finalMask = io.imread("C:/bertud_temp/slope.tif")
             #set the output to the item's final result
             # item.result = finalMask
             #set the item's worker
