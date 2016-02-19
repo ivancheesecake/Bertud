@@ -6,11 +6,14 @@ import os
 import time
 import json
 import sys
+from workitem import Workitem
 
 # from Pyro4.util import SerializerBase
 # import workitem
 
 from flask import Flask,render_template,url_for,redirect,jsonify,request
+
+SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 app = Flask(__name__)
 
@@ -79,7 +82,7 @@ def inputfolder():
 @app.route('/addToQueue', methods=['POST'])
 def addToQueue():
 
-	items = json.loads(request.form.get("files"))
+	filePaths = json.loads(request.form.get("files"))
 	outputPath = request.form.get("outputPath")
 	current_id = 0
 	# Read max_id from file
@@ -87,8 +90,14 @@ def addToQueue():
 	with open("config/max_id.json","r") as f:
 		current_id = int(json.loads(f.read())["id"])
 
-	for item in items:
-		current_id+=1
+	with Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) as dispatcher:
+		for path in filePaths:
+			current_id+=1
+			filename = path.split("/")
+			filename = filename.split(".")[0]
+			filename = outputPath + "/" + filename + ".tif"
+			item = Workitem(current_id, path, filename)
+			dispatcher.putWork(item)
 
 		#Add To Queue
 
