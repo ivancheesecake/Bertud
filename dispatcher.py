@@ -50,7 +50,7 @@ class DispatcherQueue(object):
         #update the work_queue item for backup
         work_q = pickle.load(open("config/work_queue.p", "rb"))
         work_q[str(item.itemId)] = item
-        print self.Qwaiting
+        # print self.Qwaiting
         pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
     #slaves use this to check for available works
@@ -66,7 +66,7 @@ class DispatcherQueue(object):
 
             # #read the input file and return them to worker
             with open(item.path, "rb") as file:
-                print "TANG INA NANDITO TAYO"
+
                 return item, file.read()
 
             # return "HI FANS","HELLO"   
@@ -76,7 +76,9 @@ class DispatcherQueue(object):
     #function that receives results from slaves
     def putResult(self, item, output):
         self.Qprocessing.pop(str(item.itemId), None)
-        self.Qfinished[str(item.itemId)] = item
+        # self.Qfinished[str(item.itemId)] = item
+        # Tried dictify()
+        self.Qfinished[str(item.itemId)] = item.dictify()
 
         #update the work_queue item for backup
         work_q = pickle.load(open("config/work_queue.p", "rb"))

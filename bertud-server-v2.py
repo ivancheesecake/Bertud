@@ -60,9 +60,8 @@ def dashboard():
 @app.route('/status')
 def status():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
-	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip)
-
-	return jsonify(dispatcher.getWorkerInfo())
+	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	return jsonify({"worker_info":dispatcher.getWorkerInfo(),"finished":dispatcher.getResult()})
 
 @app.route('/inputfolder', methods=['POST'])
 def inputfolder():
@@ -110,8 +109,10 @@ def addToQueue():
 		for path,pathShort in zip(filePaths,filesShort):
 			current_id+=1
 			filename = pathShort.split(".")[0]
-			outputPath = outputPath + "/" + filename + ".tif"
-			item = Workitem(current_id, path, outputPath)
+			outPath = outputPath + "/" + filename + ".tif"
+			print filename
+			print outputPath
+			item = Workitem(current_id, path, outPath)
 			dispatcher.putWork(item)
 
 	#Add To Queue

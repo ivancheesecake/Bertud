@@ -158,6 +158,8 @@ def main():
             # print "Creating final mask and saving output raster..."
             
             # finalMask = ma.buildFinalMask(pieces,mergedMask)
+            time.sleep(10)
+
             finalMask = io.imread("C:/bertud_temp/slope.tif")
             #set the output to the item's final result
             # item.result = finalMask

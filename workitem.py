@@ -12,6 +12,8 @@ class Workitem(object):
     def __str__(self):
         return "<Workitem id=%s>" % str(self.itemId)
     
+    def dictify(self):
+        return {"itemId":self.itemId,"path":self.path,"output_path":self.output_path,"worker_id":self.worker_id,"start_time":self.start_time,"end_time":self.end_time}
 
     @staticmethod
     def from_dict(classname, d):
