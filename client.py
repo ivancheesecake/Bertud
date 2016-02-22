@@ -16,7 +16,7 @@ SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
 def main():
     #connect to dispatcher
-    with Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@169.254.23.41") as dispatcher:
+    with Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@10.0.63.90") as dispatcher:
         placework(dispatcher)
         # collectresults(dispatcher)
 
@@ -25,8 +25,8 @@ def placework(dispatcher):
     print("placing work items into dispatcher queue.")
 
     #Read LAZ input file then send to dispatcher
-    with open("E:\FeatureExtractionV4\lasprocessing\ground\pt000002.laz", "rb") as file:
-        item = Workitem(1, file.read())                 #CHANGE THE PARAMETERS
+    # with open("E:\FeatureExtractionV4\lasprocessing\ground\pt000002.laz", "rb") as file:
+    #     item = Workitem(1, file.read())                 #CHANGE THE PARAMETERS
 
     # inputs = {}
     # inputs["classified"] = io.imread('bertud_inputs\\pt000127_classified.tif')
@@ -36,7 +36,12 @@ def placework(dispatcher):
     # item = Workitem(1, inputs)                          #ID(FIRST PARAM) SHOULD BE UNIQUE -> CODE CODE CODE
 
     #put work to dispatcher
+    current_id=69
+    path = "E:/testinput/pt000015.laz"
+    outputPath = "E:/FeatureExtractionOutputs"
+    item = Workitem(current_id, path, outputPath)
     dispatcher.putWork(item)
+    # dispatcher.putWork(item)
 
 #Function for collecting result from dispatcher
 # def collectresults(dispatcher):

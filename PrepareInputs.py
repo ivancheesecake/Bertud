@@ -47,7 +47,7 @@ def prepareInputs():
 	print "Running LASGrid..."
 
 	# Prepare file_list.txt
-	subprocess.call([lastoolsPath+"lasgrid", "-i", "C:/bertud_temp/classified.laz","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
+	subprocess.call([lastoolsPath+"lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
 
 	print "Running blast2DEM..."
 	

@@ -1,12 +1,16 @@
 import subprocess
 import atexit
 import psutil
-import Pyro4
 import os
+os.environ["PYRO_LOGFILE"] = "pyro.log"
+os.environ["PYRO_LOGLEVEL"] = "DEBUG"
+import Pyro4
 import time
 import json
 import sys
 from workitem import Workitem
+from Pyro4.util import SerializerBase
+import pickle
 
 # from Pyro4.util import SerializerBase
 # import workitem
@@ -56,9 +60,9 @@ def dashboard():
 @app.route('/status')
 def status():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
-	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip)
-
-	return jsonify(dispatcher.getWorkerInfo())
+	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	updates = dispatcher.getUpdates()
+	return jsonify({"worker_info":updates[0],"finished":updates[1]})
 
 @app.route('/inputfolder', methods=['POST'])
 def inputfolder():
@@ -79,10 +83,22 @@ def inputfolder():
     			    	
 	return jsonify(retval)
 
+@app.route('/initializeQueue', methods=['POST'])
+def initializeQueue():
+
+	queue = pickle.load(open("config/work_queue.p","rb"))
+	dictQueue = []
+	for key,val in queue.items():
+		dictQueue.append({"itemId":val.itemId,"path":val.path,"output_path":val.output_path,"worker_id":val.worker_id,"start_time":val.start_time,"end_time":val.end_time})
+		# dictQueue.append(queue[key].dictify())
+
+	return jsonify({"success":"true","queue":dictQueue})
+
 @app.route('/addToQueue', methods=['POST'])
 def addToQueue():
 
 	filePaths = json.loads(request.form.get("files"))
+	filesShort = json.loads(request.form.get("filesShort"))
 	outputPath = request.form.get("outputPath")
 	current_id = 0
 	# Read max_id from file
@@ -91,21 +107,29 @@ def addToQueue():
 		current_id = int(json.loads(f.read())["id"])
 
 	with Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) as dispatcher:
-		for path in filePaths:
+		for path,pathShort in zip(filePaths,filesShort):
 			current_id+=1
-			filename = path.split("/")
-			filename = filename.split(".")[0]
-			filename = outputPath + "/" + filename + ".tif"
-			item = Workitem(current_id, path, filename)
+			filename = pathShort.split(".")[0]
+			outPath = outputPath + "/" + filename + ".tif"
+			print filename
+			print outputPath
+			item = Workitem(current_id, path, outPath)
 			dispatcher.putWork(item)
 
-		#Add To Queue
-
+	#Add To Queue
 	with open("config/max_id.json","w") as f:	
 		f.write(json.dumps({"id":str(current_id)}))
 
+	# Assume queueing is successful	
+	
+	queue = pickle.load(open("config/work_queue.p","rb"))
+	# print queue	
+	dictQueue = []
+	for key,val in queue.items():
+		dictQueue.append({"itemId":val.itemId,"path":val.path,"output_path":val.output_path,"worker_id":val.worker_id,"start_time":val.start_time,"end_time":val.end_time})
+		# dictQueue.append(queue[key].dictify())
 
-	return jsonify({"success":"true"})
+	return jsonify({"success":"true","queue":dictQueue})
 
 
 

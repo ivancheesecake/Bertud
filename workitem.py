@@ -1,5 +1,5 @@
 class Workitem(object):
-    def __init__(self, itemId, path, output_path):
+    def __init__(self, itemId, path,output_path):
         print("Created workitem %s" % itemId)
         self.itemId = itemId
         self.path = path
@@ -11,6 +11,9 @@ class Workitem(object):
 
     def __str__(self):
         return "<Workitem id=%s>" % str(self.itemId)
+    
+    def dictify(self):
+        return {"itemId":self.itemId,"path":self.path,"output_path":self.output_path,"worker_id":self.worker_id,"start_time":self.start_time,"end_time":self.end_time}
 
     @staticmethod
     def from_dict(classname, d):
@@ -22,3 +25,6 @@ class Workitem(object):
         w.start_time = d["start_time"]
         w.end_time = d["end_time"]
         return w
+
+        
+
