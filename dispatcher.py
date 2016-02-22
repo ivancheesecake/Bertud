@@ -14,6 +14,7 @@ import copy
 import sys
 import pickle
 from skimage import io
+import time
 
 
 ip = sys.argv[1]
@@ -25,12 +26,14 @@ SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 class DispatcherQueue(object):
     
     def __init__(self):
-        self.Qwaiting = queue.Queue()
+        # self.Qwaiting = queue.Queue()
+        self.Qwaiting = {}
 
         #load past works and place them to Qwaiting
         work_q = pickle.load(open("config/work_queue.p", "rb"))
         for key, item in work_q.items():
-            self.Qwaiting.put(item)
+            # self.Qwaiting.put(item)
+            self.Qwaiting[key] = item
 
         self.Qprocessing = {}
         self.Qfinished = {}
@@ -45,7 +48,8 @@ class DispatcherQueue(object):
     #function that receives work from client
     def putWork(self, item):
         #add item to queue
-        self.Qwaiting.put(item)
+        # self.Qwaiting.put(item)
+        self.Qwaiting[str(item.itemId)] = item
         # print self.Qwaiting
 
         #update the work_queue item for backup
@@ -56,22 +60,36 @@ class DispatcherQueue(object):
 
     #slaves use this to check for available works
     def getWork(self, worker_ID, timeout=5):
-        try:
-            #give work to slave
-            item = self.Qwaiting.get(block=True, timeout=timeout)
+        # try:
+        #     #give work to slave
+        #     item = self.Qwaiting.get(block=True, timeout=timeout)
+        #     item.worker_id = worker_ID                  #set worker id to item
+        #     print item.worker_id
+        #     print item.path
+        #     print item.output_path
+        #     self.Qprocessing[str(item.itemId)] = item.dictify()   #add item to the queue for currently processing
+
+        #     # #read the input file and return them to worker
+        #     with open(item.path, "rb") as file:
+
+        #         return item, file.read()
+
+        #     # return "HI FANS","HELLO"   
+        # except queue.Empty:
+        #     raise ValueError("no items in queue")
+
+        time.time(timeout)
+        
+        if len(self.Qwaiting) > 0:
+            key, item = self.Qwaiting.popitem()
             item.worker_id = worker_ID                  #set worker id to item
-            print item.worker_id
-            print item.path
-            print item.output_path
             self.Qprocessing[str(item.itemId)] = item.dictify()   #add item to the queue for currently processing
 
             # #read the input file and return them to worker
             with open(item.path, "rb") as file:
 
                 return item, file.read()
-
-            # return "HI FANS","HELLO"   
-        except queue.Empty:
+        else:
             raise ValueError("no items in queue")
 
     #function that receives results from slaves
