@@ -3,30 +3,38 @@ try:
     import queue
 except ImportError:
     import Queue as queue
+import os
+os.environ["PYRO_LOGFILE"] = "pyro.log"
+os.environ["PYRO_LOGLEVEL"] = "DEBUG"
+
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
 import copy
 import sys
 import pickle
+from skimage import io
+
 
 ip = sys.argv[1]
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
-
+# global work_q 
 class DispatcherQueue(object):
+    
     def __init__(self):
         self.Qwaiting = queue.Queue()
 
         #load past works and place them to Qwaiting
-        work_Q = pickle.load(open("config/work_queque.p", "rb"))
-        for key, item in work_Q.item():
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        for key, item in work_q.items():
             self.Qwaiting.put(item)
 
         self.Qprocessing = {}
         self.Qfinished = {}
+        self.RemoveIDs = []
         # self.workqueue = queue.Queue()
         # self.resultqueue = queue.Queue()
         # 
@@ -38,11 +46,13 @@ class DispatcherQueue(object):
     def putWork(self, item):
         #add item to queue
         self.Qwaiting.put(item)
+        # print self.Qwaiting
 
         #update the work_queue item for backup
-        work_Q = pickle.load(open("config/work_queque.p", "rb"))
-        work_Q[str(item.itemId)] = item
-        pickle.dump(work_Q, open("config/work_queque.p", "wb"))
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        work_q[str(item.itemId)] = item
+        # print self.Qwaiting
+        pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
     #slaves use this to check for available works
     def getWork(self, worker_ID, timeout=5):
@@ -50,33 +60,45 @@ class DispatcherQueue(object):
             #give work to slave
             item = self.Qwaiting.get(block=True, timeout=timeout)
             item.worker_id = worker_ID                  #set worker id to item
-            self.Qprocessing[str(item.itemId)] = item   #add item to the queue for currently processing
+            print item.worker_id
+            print item.path
+            print item.output_path
+            self.Qprocessing[str(item.itemId)] = item.dictify()   #add item to the queue for currently processing
 
-            #read the input file and return them to worker
+            # #read the input file and return them to worker
             with open(item.path, "rb") as file:
+
                 return item, file.read()
 
+            # return "HI FANS","HELLO"   
         except queue.Empty:
             raise ValueError("no items in queue")
 
     #function that receives results from slaves
     def putResult(self, item, output):
         self.Qprocessing.pop(str(item.itemId), None)
-        self.Qfinished[str(item.itemId)] = item
+        self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id})
+        # Tried dictify()
+        self.Qfinished[str(item.itemId)] = item.dictify()
 
         #update the work_queue item for backup
-        work_Q = pickle.load(open("config/work_queque.p", "rb"))
-        self.work_Q.pop(str(item.itemId), None)
-        pickle.dump(work_Q, open("config/work_queque.p", "wb"))
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        work_q.pop(str(item.itemId), None)
+        pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
         #update finished works
+        #Dictify this
         work_F = pickle.load(open("config/finished_work.p", "rb"))
         work_F[str(item.itemId)] = item
         pickle.dump(work_F, open("config/finished_work.p", "wb"))
 
         #write output file
-        with open(item.output_path) as file:
-                file.write(output)
+ 
+        print item.output_path
+        io.imsave(item.output_path,output)
+
+        # with open(item.output_path,"wb") as file:
+        #         file.write(output)
 
         # self.resultqueue.put(item)
 
@@ -94,6 +116,9 @@ class DispatcherQueue(object):
     # def resultQueueSize(self):
     #     return self.resultqueue.qsize()
 
+    # def getProcessing(self):
+    #     return self.Qprocessing
+
     #updates the state of utilization of slaves
     def updateWorkerUsage(self, worker_id, cpu_usage, ram_usage):
         self.worker_info[worker_id]['cpu'] =cpu_usage 
@@ -102,16 +127,18 @@ class DispatcherQueue(object):
     def updateWorkerStatus(self,worker_id,status):
         self.worker_info[worker_id]['status'] = status
 
-    def getWorkerInfo(self):
+    def getUpdates(self):
 
-        clone = copy.deepcopy(self.worker_info)
-        # return self.worker_info 
+        slave_infos= copy.deepcopy(self.worker_info)
+        remove_works= copy.deepcopy(self.RemoveIDs)
         
+
         for key,obj in self.worker_info.iteritems():
             self.worker_info[key]['cpu'] = -1
             self.worker_info[key]['ram'] = -1
 
-        return clone 
+        self.RemoveIDs = []
+        return slave_infos,remove_works,self.Qprocessing 
 
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(
