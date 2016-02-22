@@ -78,12 +78,12 @@ class DispatcherQueue(object):
         # except queue.Empty:
         #     raise ValueError("no items in queue")
 
-        time.time(timeout)
+        time.sleep(timeout)
         
         if len(self.Qwaiting) > 0:
-            key, item = self.Qwaiting.popitem()
+            next = min(self.Qwaiting.keys())
+            item = self.Qwaiting.pop(next)
             item.worker_id = worker_ID                  #set worker id to item
-
             self.Qprocessing[str(item.itemId)] = item.dictify()   #add item to the queue for currently processing
 
             # #read the input file and return them to worker
