@@ -6,6 +6,7 @@ pip install scikit_image-0.11.2-cp27-none-win32.whl
 pip install psutil-3.4.2-cp27-none-win32.whl
 pip install Pyro4-4.41-py2.py3-none-any.whl
 pip install wxPython_common-3.0.2.0-py2-none-any.whl
+pip install wxPython-3.0.2.0-cp27-none-win32.whl
 pip install networkx-1.11-py2.py3-none-any.whl
 cd Flask-0.10.1
 python setup.py install

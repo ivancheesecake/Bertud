@@ -83,6 +83,7 @@ class DispatcherQueue(object):
         if len(self.Qwaiting) > 0:
             key, item = self.Qwaiting.popitem()
             item.worker_id = worker_ID                  #set worker id to item
+
             self.Qprocessing[str(item.itemId)] = item.dictify()   #add item to the queue for currently processing
 
             # #read the input file and return them to worker

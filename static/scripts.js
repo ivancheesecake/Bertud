@@ -69,7 +69,7 @@ $(document).ready(function() {
 			url: 'http://127.0.0.1:5000/status',
 			type: 'GET',
 			success: function(resp){
-				update_queue(resp.finished);
+				update_queue(resp.finished,resp.processing);
 				// update_pcs(resp.worker_info);
 			}
 			});
@@ -115,18 +115,44 @@ function update_pcs(obj){
 
 }
 
-function update_queue(obj){
+function update_queue(finished,processing){
 
 	console.log("HERE")
-	console.log(obj)
-	for(index in obj){
-		fname = obj[index].path.split("/").pop();
-		console.log("#item"+obj[index].itemId);
-		$("#item"+obj[index].item_id).remove();
 
-		Materialize.toast(workers[parseInt(obj[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
+	// Update processing
+
+	for(index in processing){
+		fname = processing[index].path.split("/").pop();
+
+		// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
+		htmlString = "<div>"+fname+"<a class='secondary-content'>"+workers[processing[index].worker_id]+"</a></div>"
+		$("#item"+processing[index].itemId).html(htmlString)
 		
 	}
+
+
+	//$("li[id^='item']")
+
+
+	// Remove finished elements
+	for(index in finished){
+		fname = finished[index].path.split("/").pop();
+		console.log("#item"+finished[index].itemId);
+		$("#item"+finished[index].item_id).remove();
+
+		Materialize.toast(workers[parseInt(finished[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
+		
+	}
+
+
+	// for(index in processing){
+	// 	fname = finished[index].path.split("/").pop();
+	// 	console.log("#item"+finished[index].itemId);
+	// 	$("#item"+finished[index].item_id).remove();
+
+	// 	Materialize.toast(workers[parseInt(finished[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
+		
+	// }
 
 }
 

@@ -11,6 +11,7 @@ import sys
 from workitem import Workitem
 from Pyro4.util import SerializerBase
 import pickle
+import collections
 
 # from Pyro4.util import SerializerBase
 # import workitem
@@ -62,7 +63,8 @@ def status():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
 	updates = dispatcher.getUpdates()
-	return jsonify({"worker_info":updates[0],"finished":updates[1]})
+	print updates[2]
+	return jsonify({"worker_info":updates[0],"finished":updates[1],"processing":updates[2]})
 
 @app.route('/inputfolder', methods=['POST'])
 def inputfolder():
@@ -91,8 +93,9 @@ def initializeQueue():
 	for key,val in queue.items():
 		dictQueue.append({"itemId":val.itemId,"path":val.path,"output_path":val.output_path,"worker_id":val.worker_id,"start_time":val.start_time,"end_time":val.end_time})
 		# dictQueue.append(queue[key].dictify())
+	ordered = sorted(dictQueue, key=lambda k:k["itemId"])
 
-	return jsonify({"success":"true","queue":dictQueue})
+	return jsonify({"success":"true","queue":ordered})
 
 @app.route('/addToQueue', methods=['POST'])
 def addToQueue():
@@ -129,7 +132,9 @@ def addToQueue():
 		dictQueue.append({"itemId":val.itemId,"path":val.path,"output_path":val.output_path,"worker_id":val.worker_id,"start_time":val.start_time,"end_time":val.end_time})
 		# dictQueue.append(queue[key].dictify())
 
-	return jsonify({"success":"true","queue":dictQueue})
+	ordered = sorted(dictQueue, key=lambda k:k["itemId"])
+
+	return jsonify({"success":"true","queue":ordered})
 
 
 
