@@ -136,7 +136,12 @@ def addToQueue():
 
 	return jsonify({"success":"true","queue":ordered})
 
+@app.route('/getFinished', methods=['POST'])
+def getFinished():
 
+	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	finished = dispatcher.getResult()
+	return jsonify(finished)
 
 if __name__ == '__main__':
 	with open("config/config.json","r") as f:

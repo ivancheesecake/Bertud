@@ -98,6 +98,7 @@ class DispatcherQueue(object):
         self.Qprocessing.pop(str(item.itemId), None)
         self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id})
         # Tried dictify()
+
         self.Qfinished[str(item.itemId)] = item.dictify()
 
         #update the work_queue item for backup
@@ -108,7 +109,7 @@ class DispatcherQueue(object):
         #update finished works
         #Dictify this
         work_F = pickle.load(open("config/finished_work.p", "rb"))
-        work_F[str(item.itemId)] = item
+        work_F[str(item.itemId)] = item.dictify()
         pickle.dump(work_F, open("config/finished_work.p", "wb"))
 
         #write output file

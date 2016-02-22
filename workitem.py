@@ -1,3 +1,5 @@
+import time
+
 class Workitem(object):
     def __init__(self, itemId, path,output_path):
         print("Created workitem %s" % itemId)
@@ -13,7 +15,21 @@ class Workitem(object):
         return "<Workitem id=%s>" % str(self.itemId)
     
     def dictify(self):
-        return {"itemId":self.itemId,"path":self.path,"output_path":self.output_path,"worker_id":self.worker_id,"start_time":self.start_time,"end_time":self.end_time}
+
+        start_formatted = ""
+        end_formatted = ""
+        time_elapsed = ""
+
+        if self.start_time != None:
+            start_formatted = time.asctime(time.localtime(self.start_time))
+        
+        if self.end_time != None:
+            end_formatted = time.asctime(time.localtime(self.end_time))
+
+        # if self.start_time != None and self.end_time != None:
+        #     time_elapsed = (self.end_time - self.start_time)
+
+        return {"itemId":self.itemId,"path":self.path,"output_path":self.output_path,"worker_id":self.worker_id,"start_time":start_formatted,"end_time":end_formatted}
 
     @staticmethod
     def from_dict(classname, d):

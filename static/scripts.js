@@ -314,5 +314,31 @@ function addToQueue(files,inputPath,outputPath){
 }
 
 $("#view-logs").click(function(event) {
-	  $('#logs-modal').openModal();
+	  
+	$.ajax({
+		url: 'http://127.0.0.1:5000/getFinished',
+		type: 'POST',
+		dataType: 'json',
+	})
+	.success(function(resp) {
+
+		htmlString = "<tr><th>Input File</th><th>Output File</th><th>Start Time</th><th>End Time</th></tr>";
+
+		for(index in resp){
+
+			inputFile = resp[index].path;
+			outputFile = resp[index].output_path;
+			startTime = resp[index].start_time;
+			endTime = resp[index].end_time;
+
+			htmlString+="<tr><td>"+inputFile+"</td>"+"<td>"+outputFile+"</td>"+"<td>"+startTime+"</td>"+"<td>"+endTime+"</td></tr>";
+		}
+
+
+		$("#finished-table").html(htmlString);	
+	
+	});
+	
+	$('#logs-modal').openModal();
+
 });
