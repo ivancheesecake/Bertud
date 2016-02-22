@@ -120,7 +120,10 @@ function update_queue(obj){
 	console.log("HERE")
 	console.log(obj)
 	for(index in obj){
-		fname = obj[index].path.split("/").pop();		
+		fname = obj[index].path.split("/").pop();
+		console.log("#item"+obj[index].itemId);
+		$("#item"+obj[index].item_id).remove();
+
 		Materialize.toast(workers[parseInt(obj[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
 		
 	}

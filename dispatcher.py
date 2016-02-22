@@ -21,7 +21,7 @@ ip = sys.argv[1]
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
-global work_q 
+# global work_q 
 class DispatcherQueue(object):
     
     def __init__(self):
@@ -34,6 +34,7 @@ class DispatcherQueue(object):
 
         self.Qprocessing = {}
         self.Qfinished = {}
+        self.RemoveIDs = []
         # self.workqueue = queue.Queue()
         # self.resultqueue = queue.Queue()
         # 
@@ -76,7 +77,7 @@ class DispatcherQueue(object):
     #function that receives results from slaves
     def putResult(self, item, output):
         self.Qprocessing.pop(str(item.itemId), None)
-        # self.Qfinished[str(item.itemId)] = item
+        self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id})
         # Tried dictify()
         self.Qfinished[str(item.itemId)] = item.dictify()
 
@@ -86,6 +87,7 @@ class DispatcherQueue(object):
         pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
         #update finished works
+        #Dictify this
         work_F = pickle.load(open("config/finished_work.p", "rb"))
         work_F[str(item.itemId)] = item
         pickle.dump(work_F, open("config/finished_work.p", "wb"))
@@ -122,16 +124,17 @@ class DispatcherQueue(object):
     def updateWorkerStatus(self,worker_id,status):
         self.worker_info[worker_id]['status'] = status
 
-    def getWorkerInfo(self):
+    def getUpdates(self):
 
-        clone = copy.deepcopy(self.worker_info)
-        # return self.worker_info 
+        slave_infos= copy.deepcopy(self.worker_info)
+        remove_works= copy.deepcopy(self.RemoveIDs)
         
         for key,obj in self.worker_info.iteritems():
             self.worker_info[key]['cpu'] = -1
             self.worker_info[key]['ram'] = -1
 
-        return clone 
+        self.RemoveIDs = []
+        return slave_infos,remove_works 
 
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(
