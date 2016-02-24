@@ -10,3 +10,4 @@ pip install wxPython-3.0.2.0-cp27-none-win32.whl
 pip install networkx-1.11-py2.py3-none-any.whl
 cd Flask-0.10.1
 python setup.py install
+cd ..
