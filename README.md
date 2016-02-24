@@ -2,9 +2,9 @@
 ##Installation 
 * Clone the repository: git clone https://github.com/ivancheesecake/Bertud.git
 
-##Install dependencies
+###Install dependencies
 * >cd Bertud/dependencies
 * >install.bat
 
-##Edit configuration
+###Server
 * 
