@@ -56,7 +56,11 @@ def index():
 @app.route('/dashboard')
 def dashboard():
 	# p = subprocess.Popen(["pyro4-ns","--host","10.0.63.90"])
-	return render_template("index-v3.html")
+
+	for proc in psutil.process_iter():
+	    if proc.name() == "pyro4-ns.exe":
+	    	return render_template("index-v3.html",defaultFolders=defaultFolders)
+	return redirect(url_for('index'))    	
 
 @app.route('/status')
 def status():
@@ -151,5 +155,9 @@ if __name__ == '__main__':
 
 	ip= config["ip"]
 	pythonPath= config["pythonPath"]
+	defaultInputFolder = config["defaultInputFolder"]
+	defaultOutputFolder = config["defaultOutputFolder"]
+
+	defaultFolders = defaultInputFolder,defaultOutputFolder
 
 	app.run(debug=True,host='0.0.0.0')

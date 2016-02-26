@@ -18,14 +18,14 @@ $(document).ready(function() {
 	$("#queue-content").parent().css('height',$(window).height()-192);
 
 	//Sakto Lang
-	$("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/ground")
+	// $("#source-folder").val("E:/FeatureExtractionV4/pipelinev6/inputs/ground")
 
 	//One Lang
 	// $("#source-folder").val("E:/testinput")
 
 	// $("#source-folder").val("E:/testinput")
 
-	$("#dest-folder").val("E:/FeatureExtractionOutputs")
+	// $("#dest-folder").val("E:/FeatureExtractionOutputs")
 
 	// Loop this later
 	$("#cpu-pc1").hide();
