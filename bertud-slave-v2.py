@@ -64,6 +64,9 @@ def main():
         configfile = f.read()
         config = json.loads(configfile) 
 
+    if not os.path.exists(config["tempFolder"]):
+        os.makedirs(config["tempFolder"]) 
+
     print config
     WORKERID = str(config["workerID"])
     app = wx.PySimpleApp()
