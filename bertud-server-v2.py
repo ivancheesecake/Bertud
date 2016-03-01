@@ -2,8 +2,8 @@ import subprocess
 import atexit
 import psutil
 import os
-os.environ["PYRO_LOGFILE"] = "pyro.log"
-os.environ["PYRO_LOGLEVEL"] = "DEBUG"
+# os.environ["PYRO_LOGFILE"] = "pyro.log"
+# os.environ["PYRO_LOGLEVEL"] = "DEBUG"
 import Pyro4
 import time
 import json
@@ -17,6 +17,8 @@ import collections
 # import workitem
 
 from flask import Flask,render_template,url_for,redirect,jsonify,request
+
+Pyro4.config.SERIALIZER = "pickle"
 
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 

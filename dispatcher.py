@@ -4,8 +4,8 @@ try:
 except ImportError:
     import Queue as queue
 import os
-os.environ["PYRO_LOGFILE"] = "pyro.log"
-os.environ["PYRO_LOGLEVEL"] = "DEBUG"
+# os.environ["PYRO_LOGFILE"] = "pyro.log"
+# os.environ["PYRO_LOGLEVEL"] = "DEBUG"
 
 import Pyro4
 from Pyro4.util import SerializerBase
@@ -16,6 +16,7 @@ import pickle
 from skimage import io
 import time
 
+Pyro4.config.SERIALIZER = "pickle"
 
 ip = sys.argv[1]
 

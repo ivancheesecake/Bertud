@@ -1,8 +1,8 @@
 import os
 import socket
 import sys
-os.environ["PYRO_LOGFILE"] = "pyro.log"
-os.environ["PYRO_LOGLEVEL"] = "DEBUG"
+# os.environ["PYRO_LOGFILE"] = "pyro.log"
+# os.environ["PYRO_LOGLEVEL"] = "DEBUG"
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
@@ -13,6 +13,8 @@ import time
 import wx
 import json
 from skimage import io
+
+Pyro4.config.SERIALIZER = "pickle"
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
