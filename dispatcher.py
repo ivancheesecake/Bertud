@@ -59,6 +59,16 @@ class DispatcherQueue(object):
         # print self.Qwaiting
         pickle.dump(work_q, open("config/work_queue.p", "wb"))
 
+    def removeWork(self, itemID):
+
+        self.Qwaiting.pop(str(itemID), None)
+
+        #update the work_queue item for backup
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        work_q.pop(str(itemID), None)
+        pickle.dump(work_q, open("config/work_queue.p", "wb"))
+
+
     #slaves use this to check for available works
     def getWork(self, worker_ID, timeout=5):
         # try:
