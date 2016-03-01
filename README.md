@@ -8,8 +8,8 @@
 * >install.bat
 * Extract LAStools in C:\
 * Acquire LAStools license
-* Open Pyro4 configuration file then add pickle to the entry "self.SERIALIZERS_ACCEPTED"__
-	Sample location: "C:\Python27\ArcGIS10.2\Lib\site-packages\Pyro4-4.41-py2.7.egg\Pyro4\configuration.py"__
+* Open Pyro4 configuration file then add pickle to the entry "self.SERIALIZERS_ACCEPTED"<br />
+	Sample location: "C:\Python27\ArcGIS10.2\Lib\site-packages\Pyro4-4.41-py2.7.egg\Pyro4\configuration.py"<br />
 	self.SERIALIZERS_ACCEPTED = "serpent,marshal,json,pickle"
 * Requires internet connection
 
