@@ -5,7 +5,7 @@
 
 ###Install dependencies
 (This requires Internet connection)
-* Add python and python scripts to PATH 
+* Add python and python scripts to `PATH` 
 * `cd Bertud/dependencies`
 * `install.bat`
 * Open Pyro4 configuration file then add pickle to the entry "`self.SERIALIZERS_ACCEPTED`"<br />
@@ -28,7 +28,7 @@ Sample `config.json`
 
 `{
    "ip":"10.0.3.115",
-   "pythonPath":"C:\\Python27\\ArcGIS10.3\\",
+   "pythonPath":"C:/Python27/ArcGIS10.3/",
    "defaultInputFolder":"C:/bertud_inputs/",
    "defaultOutputFolder":"C:/bertud_outputs"  
  } 
