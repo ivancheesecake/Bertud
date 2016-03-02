@@ -38,7 +38,7 @@ Edit `slave_config.json`.
 
 Options:
 * `dispatcherIP` - The IP address of the server
-* `workerID` - The statically assigned IP of the slave
+* `workerID` - The statically assigned id of the slave
 * `tempFolder` - Path of temporary files
 
 Sample `slave_config.json`
