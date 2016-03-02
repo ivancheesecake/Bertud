@@ -17,10 +17,12 @@
 ###Master configuration
 Edit `config.json`.
 
-* ip - IP address of master
-* pythonPath - Path of Python libraries and executables
-* defaultInputFolder - Where the laz files to process are located
-* defaultOutputFolder - Where the output are placed
+Options:
+
+* `ip` - IP address of master
+* `pythonPath` - Path of Python libraries and executables
+* `defaultInputFolder` - Where the laz files to process are located
+* `defaultOutputFolder` - Where the output are placed
 
 Sample `config.json`
 
@@ -34,9 +36,10 @@ Sample `config.json`
 ###Slave configuration
 Edit `slave_config.json`.
 
-* dispatcherIP - The IP address of the server
-* workerID - The statically assigned IP of the slave
-* tempFolder - Path of temporary files
+Options:
+* `dispatcherIP` - The IP address of the server
+* `workerID` - The statically assigned IP of the slave
+* `tempFolder` - Path of temporary files
 
 Sample `slave_config.json`
 
@@ -48,5 +51,5 @@ Open command line(s)
 * To run slaves: `start bertud-slave-v2`
  
 ###Dashboard
-* On the master access http://127.0.0.1:5000 in your browser (pref. Chrome)
+* On the master, access http://127.0.0.1:5000 in your browser (pref. Chrome)
 
