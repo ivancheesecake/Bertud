@@ -1,7 +1,7 @@
 # Bertud
 ##Installation 
-* Clone the repository: git clone https://github.com/ivancheesecake/Bertud.git
-* Create a working branch: git checkout -b working_miyah
+* Clone the repository: `git clone https://github.com/ivancheesecake/Bertud.git`
+* Create a working branch: `git checkout -b work_branch_miyah`
 
 ###Install dependencies
 * Add python and python scripts to PATH 
@@ -15,7 +15,7 @@
 * Requires internet connection
 
 ###Server configuration
-Edit config.json
+Edit `config.json`
 * ip - IP address of server
 * pythonPath - Path of Python libraries and executables
 * defaultInputFolder - Where are laz files are located
@@ -29,14 +29,14 @@ Edit config.json
  } 
 `
 ###Client configuration
-Edit slave_config.json
+Edit `slave_config.json`
 * dispatcherIP - The IP address of the server
 * workerID - The statically assigned IP of the slave
 * tempFolder - Path of temporary files
+
 `{"dispatcherIP":"10.0.3.115","workerID":"1", "tempFolder":"C:/bertud_temp"}`
 
 ###To run
-* change server's IP in config.json and slave_config.json
 * >runserver.bat (on command prompt)
 * start bertud-slave-v2
 * access 127.0.0.1:5000 in your browser
