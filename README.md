@@ -18,7 +18,7 @@
 Edit `config.json`
 * ip - IP address of server
 * pythonPath - Path of Python libraries and executables
-* defaultInputFolder - Where are laz files are located
+* defaultInputFolder - Where are laz files to process are located
 * defaultOutputFolder - Where the outputs are placed
 
 `{
