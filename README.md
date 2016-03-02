@@ -14,6 +14,24 @@
 	self.SERIALIZERS_ACCEPTED = "serpent,marshal,json,pickle"
 * Requires internet connection
 
+###Server configuration
+Edit config.json
+* ip - IP address of server
+* pythonPath - Path of Python libraries and executables
+* defaultInputFolder - Where are laz files are located
+* defaultOutputFolder - Where the outputs are placed
+
+    {
+    "ip":"10.0.3.115",
+    "pythonPath":"C:\\Python27\\ArcGIS10.3\\",
+    "defaultInputFolder":"C:/bertud_inputs/",
+    "defaultOutputFolder":"C:/bertud_outputs"  
+    } 
+
+###Client configuration
+Edit slave_config.json
+
+
 ###To run
 * change server's IP in config.json and slave_config.json
 * >runserver.bat (on command prompt)
