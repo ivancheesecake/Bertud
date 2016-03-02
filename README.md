@@ -9,18 +9,19 @@
 * >install.bat
 * Extract LAStools in C:\
 * Acquire LAStools license
-* Open Pyro4 configuration file then add pickle to the entry "self.SERIALIZERS_ACCEPTED"<br />
+* Open Pyro4 configuration file then add pickle to the entry "`self.SERIALIZERS_ACCEPTED`"<br />
 	Sample location: "C:\Python27\ArcGIS10.2\Lib\site-packages\Pyro4-4.41-py2.7.egg\Pyro4\configuration.py"<br />
-	self.SERIALIZERS_ACCEPTED = "serpent,marshal,json,pickle"
+	`self.SERIALIZERS_ACCEPTED = "serpent,marshal,json,pickle"`
 * Requires internet connection
 
-###Server configuration
+###Master configuration
 Edit `config.json`
-* ip - IP address of server
+* ip - IP address of master
 * pythonPath - Path of Python libraries and executables
-* defaultInputFolder - Where are laz files to process are located
-* defaultOutputFolder - Where the outputs are placed
+* defaultInputFolder - Where the laz files to process are located
+* defaultOutputFolder - Where the output are placed
 
+Sample `config.json`
 `{
    "ip":"10.0.3.115",
    "pythonPath":"C:\\Python27\\ArcGIS10.3\\",
@@ -28,16 +29,21 @@ Edit `config.json`
    "defaultOutputFolder":"C:/bertud_outputs"  
  } 
 `
-###Client configuration
+###Slave configuration
 Edit `slave_config.json`
 * dispatcherIP - The IP address of the server
 * workerID - The statically assigned IP of the slave
 * tempFolder - Path of temporary files
 
+Sample `slave_config.json`
+
 `{"dispatcherIP":"10.0.3.115","workerID":"1", "tempFolder":"C:/bertud_temp"}`
 
-###To run
-* >runserver.bat (on command prompt)
-* start bertud-slave-v2
-* access 127.0.0.1:5000 in your browser
-* add las files to the queue
+###Starting master/slave
+Open command line(s)
+* To run the master: `runserver.bat`
+* To run slaves: `start bertud-slave-v2`
+ 
+###Dashboard
+* On the master access http://127.0.0.1:5000 in your browser (pref. Chrome)
+
