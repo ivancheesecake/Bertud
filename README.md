@@ -4,15 +4,15 @@
 * Create a working branch: `git checkout -b work_branch_miyah`
 
 ###Install dependencies
+(This requires Internet connection)
 * Add python and python scripts to PATH 
 * `cd Bertud/dependencies`
 * `install.bat`
-* Extract LAStools in C:\
-* Acquire LAStools license
 * Open Pyro4 configuration file then add pickle to the entry "`self.SERIALIZERS_ACCEPTED`"<br />
 	Sample location: "C:\Python27\ArcGIS10.2\Lib\site-packages\Pyro4-4.41-py2.7.egg\Pyro4\configuration.py"<br />
 	`self.SERIALIZERS_ACCEPTED = "serpent,marshal,json,pickle"`
-* Requires Internet connection
+* Extract LAStools to `c:\lastools`. This is IMPORTANT because Bertud uses this path internally.
+* Acquire and enable LAStools license
 
 ###Master configuration
 Edit `config.json`.
