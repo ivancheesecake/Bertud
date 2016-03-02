@@ -1,4 +1,6 @@
 # Bertud
+Part of http://phil-lidar.uplb.edu.ph/
+
 ##Installation 
 * Clone the repository: `git clone https://github.com/ivancheesecake/Bertud.git`
 * Create a working branch: `git checkout -b work_branch_miyah`
