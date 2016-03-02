@@ -70,7 +70,7 @@ $(document).ready(function() {
 			type: 'GET',
 			success: function(resp){
 				update_queue(resp.finished,resp.processing);
-				// update_pcs(resp.worker_info);
+				update_pcs(resp.worker_info);
 			}
 			});
 		}

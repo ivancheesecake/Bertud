@@ -1,8 +1,6 @@
 import os
 import socket
 import sys
-# os.environ["PYRO_LOGFILE"] = "pyro.log"
-# os.environ["PYRO_LOGLEVEL"] = "DEBUG"
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
@@ -13,6 +11,7 @@ import time
 import wx
 import json
 from skimage import io
+import subprocess
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -69,8 +68,11 @@ def main():
     if not os.path.exists(config["tempFolder"]):
         os.makedirs(config["tempFolder"]) 
 
-    print config
     WORKERID = str(config["workerID"])
+    print config["pythonPath"]
+    # Run worker_usage.py
+    subprocess.Popen([config["pythonPath"],"worker_usage.py"])
+
     app = wx.PySimpleApp()
     taskbar = BertudTaskBarIcon()
 
