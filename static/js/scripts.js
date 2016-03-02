@@ -54,7 +54,7 @@ $(document).ready(function() {
 		}
 
 		$(".remove-from-queue").click(function(event){
-			alert($(this).data("id"));
+			removeFromQueue($(this).data("id"));
 		});
 
 	}).error(function() {
@@ -88,6 +88,7 @@ function update_pcs(obj){
 			$("#status-pc"+index).html("Status: Disconnected");
 			$("#panel-pc"+index).addClass('red')
 			$("#panel-pc"+index).removeClass('green')
+			$("#panel-pc"+index).removeClass('orange')
 
 			$("#cpu-pc"+index).hide();
 			$("#ram-pc"+index).hide();
@@ -95,14 +96,18 @@ function update_pcs(obj){
 
 		else{
 
+			console.log(o.status)
 			if(o.status==1){
 				$("#status-pc"+index).html("Status: Ready");
 				$("#panel-pc"+index).addClass('green')
 				$("#panel-pc"+index).removeClass('red')
+				$("#panel-pc"+index).removeClass('orange')
 			}
 			else if(o.status==2){
 				$("#status-pc"+index).html("Status: Processing");
-
+				$("#panel-pc"+index).addClass('orange')
+				$("#panel-pc"+index).removeClass('red')
+				$("#panel-pc"+index).removeClass('green')
 			}
 
 			$("#cpu-pc"+index).show()
@@ -255,6 +260,24 @@ $('#add-queue').click(function(event) {
 
 });	
 
+function removeFromQueue(id){
+
+	$.ajax({
+		url: 'http://127.0.0.1:5000/removeFromQueue',
+		type: 'POST',
+		dataType: 'json',
+		data: {"removeID": id},
+	}).success(function(resp){
+
+		console.log(resp)
+		Materialize.toast(resp.path+" has been dequeued.",4000)
+		$("#item"+id).remove();
+
+
+	});
+
+}
+
 function addToQueue(files,inputPath,outputPath){
 
 	queue = []
@@ -296,7 +319,7 @@ function addToQueue(files,inputPath,outputPath){
 		}
 
 		$(".remove-from-queue").click(function(event){
-			alert($(this).data("id"));
+			removeFromQueue($(this).data("id"));
 		});
 
 		htmlString = "<span id='queue-badge' class='badge'>+"+files.length+"</span></a>";

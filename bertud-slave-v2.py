@@ -120,7 +120,9 @@ def main():
 
             print("Got some work...")
             # print item
+            print "Changed worker status"
             dispatcher.updateWorkerStatus(WORKERID,'2')
+            print dispatcher.getUpdates()[0]
 
             # Use the data collected from the dispatcher
             # ndsm = item.data["ndsm"]
@@ -177,6 +179,7 @@ def main():
             #return the result to the dispatcher
             try:
                 dispatcher.putResult(item, finalMask)
+                dispatcher.updateWorkerStatus(WORKERID,'1')
             except:
                 while True:
                     #Try to reconnect to dispatcher
@@ -189,6 +192,7 @@ def main():
                     #Reconnecting succesful
                     else:
                         dispatcher.putResult(item, finalMask)
+                        dispatcher.updateWorkerStatus(WORKERID,'1')
                         print("Connected to dispatcher.")
                         break
 
