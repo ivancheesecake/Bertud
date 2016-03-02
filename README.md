@@ -1,6 +1,7 @@
 # Bertud
 ##Installation 
 * Clone the repository: git clone https://github.com/ivancheesecake/Bertud.git
+* Create a working branch: git checkout -b working_miyah
 
 ###Install dependencies
 * Add python and python scripts to PATH 
