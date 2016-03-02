@@ -21,19 +21,19 @@ Edit config.json
 * defaultInputFolder - Where are laz files are located
 * defaultOutputFolder - Where the outputs are placed
 
-`
-    {
-    "ip":"10.0.3.115",
-    "pythonPath":"C:\\Python27\\ArcGIS10.3\\",
-    "defaultInputFolder":"C:/bertud_inputs/",
-    "defaultOutputFolder":"C:/bertud_outputs"  
-    } 
+`{
+   "ip":"10.0.3.115",
+   "pythonPath":"C:\\Python27\\ArcGIS10.3\\",
+   "defaultInputFolder":"C:/bertud_inputs/",
+   "defaultOutputFolder":"C:/bertud_outputs"  
+ } 
 `
 ###Client configuration
 Edit slave_config.json
 * dispatcherIP - The IP address of the server
 * workerID - The statically assigned IP of the slave
 * tempFolder - Path of temporary files
+`{"dispatcherIP":"10.0.3.115","workerID":"1", "tempFolder":"C:/bertud_temp"}`
 
 ###To run
 * change server's IP in config.json and slave_config.json
