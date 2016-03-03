@@ -44,10 +44,16 @@ Options:
 * `dispatcherIP` - The IP address of the server
 * `workerID` - The statically assigned id of the slave
 * `tempFolder` - Path of temporary files
+* `pythonPath` - Path of Python libraries and executables
 
 Sample `slave_config.json`
 
-`{"dispatcherIP":"10.0.3.115","workerID":"1", "tempFolder":"C:/bertud_temp"}`
+`{
+   "dispatcherIP":"10.0.3.115",
+   "workerID":"1", 
+   "tempFolder":"C:/bertud_temp",
+   "pythonPath":"C:/Python27/ArcGIS10.3/"
+}`
 
 ###Starting master/slave
 Open command line(s)
