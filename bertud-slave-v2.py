@@ -1,8 +1,6 @@
 import os
 import socket
 import sys
-# os.environ["PYRO_LOGFILE"] = "pyro.log"
-# os.environ["PYRO_LOGLEVEL"] = "DEBUG"
 import Pyro4
 from Pyro4.util import SerializerBase
 from workitem import Workitem
@@ -13,6 +11,7 @@ import time
 import wx
 import json
 from skimage import io
+import subprocess
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -69,8 +68,11 @@ def main():
     if not os.path.exists(config["tempFolder"]):
         os.makedirs(config["tempFolder"]) 
 
-    print config
     WORKERID = str(config["workerID"])
+    print config["pythonPath"]
+    # Run worker_usage.py
+    subprocess.Popen([config["pythonPath"],"worker_usage.py"])
+
     app = wx.PySimpleApp()
     taskbar = BertudTaskBarIcon()
 
@@ -118,7 +120,9 @@ def main():
 
             print("Got some work...")
             # print item
+            print "Changed worker status"
             dispatcher.updateWorkerStatus(WORKERID,'2')
+            print dispatcher.getUpdates()[0]
 
             # Use the data collected from the dispatcher
             # ndsm = item.data["ndsm"]
@@ -175,6 +179,7 @@ def main():
             #return the result to the dispatcher
             try:
                 dispatcher.putResult(item, finalMask)
+                dispatcher.updateWorkerStatus(WORKERID,'1')
             except:
                 while True:
                     #Try to reconnect to dispatcher
@@ -187,6 +192,7 @@ def main():
                     #Reconnecting succesful
                     else:
                         dispatcher.putResult(item, finalMask)
+                        dispatcher.updateWorkerStatus(WORKERID,'1')
                         print("Connected to dispatcher.")
                         break
 

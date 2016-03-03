@@ -69,7 +69,7 @@ def status():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
 	updates = dispatcher.getUpdates()
-	print updates[2]
+	print updates[0]
 	return jsonify({"worker_info":updates[0],"finished":updates[1],"processing":updates[2]})
 
 @app.route('/inputfolder', methods=['POST'])
@@ -142,11 +142,23 @@ def addToQueue():
 
 	return jsonify({"success":"true","queue":ordered})
 
+@app.route('/removeFromQueue',methods=['POST'])
+def removeFromQueue():
+
+	removeID = request.form.get("removeID")
+	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	
+	removed = dispatcher.removeWork(removeID)		
+
+	return jsonify(removed)
+
+
 @app.route('/getFinished', methods=['POST'])
 def getFinished():
 
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
 	finished = dispatcher.getResult()
+
 	return jsonify(finished)
 
 if __name__ == '__main__':

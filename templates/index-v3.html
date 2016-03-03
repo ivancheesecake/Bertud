@@ -5,42 +5,42 @@
 
 	<!-- Fonts -->
 
-	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='materialize.css')}}" />
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/materialize.css')}}" />
 	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/style.css')}}?q=1280549780" />
 	<style>
 
 	@font-face {
 		  font-family: "Roboto";
-		  src: local(Roboto Thin), url("{{url_for('static',filename='Roboto-Thin.eot')}}");
-		  src: url("{{url_for('static',filename='Roboto-Thin.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Thin.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Thin.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Thin.ttf')}}") format("truetype");
+		  src: local(Roboto Thin), url("{{url_for('static',filename='font/Roboto-Thin.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Thin.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Thin.woff2')}}") format("woff2"), url("{{url_for('static',filename='font/Roboto-Thin.woff')}}") format("woff"), url("{{url_for('static',filename='font/Roboto-Thin.ttf')}}") format("truetype");
 		  font-weight: 200;
 		}
 		
 		@font-face {
 		  font-family: "Roboto Light";
-		  src: local(Roboto Light), url("{{url_for('static',filename='Roboto-Light.eot')}}");
-		  src: url("{{url_for('static',filename='Roboto-Light.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Light.woff2')}}") format("woff2"), url(".{{url_for('static',filename='Roboto-Light.woff')}}") format("woff"), url(".{{url_for('static',filename='Roboto-Light.ttf')}}") format("truetype");
+		  src: local(Roboto Light), url("{{url_for('static',filename='font/Roboto-Light.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Light.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Light.woff2')}}") format("woff2"), url(".{{url_for('static',filename='font/Roboto-Light.woff')}}") format("woff"), url(".{{url_for('static',filename='font/Roboto-Light.ttf')}}") format("truetype");
 		  font-weight: 300;
 		}
 		
 		@font-face {
 		  font-family: "Roboto Regular";
-		  src: local(Roboto Regular), url("{{url_for('static',filename='Roboto-Regular.eot')}}");
-		  src: url("{{url_for('static',filename='Roboto-Regular.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Regular.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Regular.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Regular.ttf')}}") format("truetype");
+		  src: local(Roboto Regular), url("{{url_for('static',filename='font/Roboto-Regular.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Regular.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Regular.woff2')}}") format("woff2"), url("{{url_for('static',filename='font/Roboto-Regular.woff')}}") format("woff"), url("{{url_for('static',filename='font/Roboto-Regular.ttf')}}") format("truetype");
 		  font-weight: 400;
 		}
 
 		@font-face {
 		  font-family: "Roboto Medium";
-		  src: url("{{url_for('static',filename='Roboto-Medium.eot')}}");
-		  src: url("{{url_for('static',filename='Roboto-Medium.eot')}}?#iefix") format("embedded-opentype"), url("../font/roboto/Roboto-Medium.woff2") format("woff2"), url("../font/roboto/Roboto-Medium.woff") format("woff"), url("../font/roboto/Roboto-Medium.ttf") format("truetype");
+		  src: url("{{url_for('static',filename='font/Roboto-Medium.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Medium.eot')}}?#iefix") format("embedded-opentype"), url("../font/roboto/Roboto-Medium.woff2") format("woff2"), url("../font/roboto/Roboto-Medium.woff") format("woff"), url("../font/roboto/Roboto-Medium.ttf") format("truetype");
 		  font-weight: 500;
 		}
 
 		@font-face {
 		  font-family: "Roboto Bold";
-		  src: url("{{url_for('static',filename='Roboto-Bold.eot')}}");
-		  src: url("{{url_for('static',filename='Roboto-Bold.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='Roboto-Bold.woff2')}}") format("woff2"), url("{{url_for('static',filename='Roboto-Bold.woff')}}") format("woff"), url("{{url_for('static',filename='Roboto-Bold.ttf')}}") format("truetype");
+		  src: url("{{url_for('static',filename='font/Roboto-Bold.eot')}}")
+		  src: url("{{url_for('static',filename='font/Roboto-Bold.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Bold.woff2')}}") format("woff2"), url("{{url_for('static',filename='font/Roboto-Bold.woff')}}") format("woff"), url("{{url_for('static',filename='font/Roboto-Bold.ttf')}}") format("truetype");
 		  font-weight: 700;
 		}
 
@@ -48,7 +48,7 @@
 		  font-family: 'Material Icons';
 		  font-style: normal;
 		  font-weight: 400;
-		  src: local('Material Icons'), local('MaterialIcons-Regular'), url("{{url_for('static',filename='MaterialIcons-Regular.woff2')}}") format('woff2');
+		  src: local('Material Icons'), local('MaterialIcons-Regular'), url("{{url_for('static',filename='font/MaterialIcons-Regular.woff2')}}") format('woff2');
 		}
 
 		.material-icons {
@@ -82,7 +82,7 @@
 			<div class="nav-wrapper blue darken-3">
 				<a href="#" class="brand-logo">
 
-					<img id="navbar-icon" src="{{url_for('static',filename='logo-5.png')}}"/>
+					<img id="navbar-icon" src="{{url_for('static',filename='img/logo.png')}}"/>
 
 					<ul id="nav-mobile" class="right hide-on-med-and-down">
 						<li class="active"><a href="#">Dashboard</a></li>
@@ -243,9 +243,9 @@
   	</div>	
 
 
-	<script type="text/javascript" src="{{url_for('static',filename='jquery-1.12.0.min.js')}}"></script>
-	<script type="text/javascript" src="{{url_for('static',filename='materialize.min.js')}}"></script>
-	<script type="text/javascript" src="{{url_for('static',filename='scripts.js')}}">
+	<script type="text/javascript" src="{{url_for('static',filename='js/jquery-1.12.0.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static',filename='js/materialize.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static',filename='js/scripts.js')}}">
 
 	</script>
 </body>

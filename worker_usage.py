@@ -35,7 +35,7 @@ def main():
 		try:
 			dispatcher.updateWorkerUsage(str(config["workerID"]), psutil.cpu_percent(), psutil.virtual_memory().percent)
 			# For UI Testing lang
-			dispatcher.updateWorkerStatus('1', 1)
+			# dispatcher.updateWorkerStatus('1', 1)
 
 		except:
 			while True:
