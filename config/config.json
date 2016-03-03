@@ -1,8 +1,8 @@
 {
 
-"ip":"10.0.63.103",
-"pythonPath":"C:\\Python27\\ArcGIS10.2\\",
-"defaultInputFolder":"E:/FeatureExtractionV4/pipelinev6/inputs/ground",
-"defaultOutputFolder":"E:/FeatureExtractionOutputs"
+"ip":"10.0.3.115",
+"pythonPath":"C:\\Python27\\ArcGIS10.3\\",
+"defaultInputFolder":"C:/bertud_inputs/",
+"defaultOutputFolder":"C:/bertud_outputs"
 
 }

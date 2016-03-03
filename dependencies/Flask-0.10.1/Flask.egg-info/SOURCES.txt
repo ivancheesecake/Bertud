@@ -63,7 +63,6 @@ docs/_static/touch-icon.png
 docs/_static/yes.png
 docs/_templates/sidebarintro.html
 docs/_templates/sidebarlogo.html
-docs/_themes/.git
 docs/_themes/.gitignore
 docs/_themes/LICENSE
 docs/_themes/README
