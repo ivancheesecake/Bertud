@@ -43,7 +43,7 @@ class DispatcherQueue(object):
         # self.resultqueue = queue.Queue()
         # 
                             #id  #attributes
-        self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
+        self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"},'2':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
 
 
     #function that receives work from client
@@ -161,15 +161,28 @@ class DispatcherQueue(object):
     def getUpdates(self):
 
         slave_infos= copy.deepcopy(self.worker_info)
-        remove_works= copy.deepcopy(self.RemoveIDs)
+        # remove_works= copy.deepcopy(self.RemoveIDs)
         
 
         for key,obj in self.worker_info.iteritems():
-            self.worker_info[key]['cpu'] = -1
-            self.worker_info[key]['ram'] = -1
+            
+            if self.worker_info[key]['ram'] < 0:
 
-        self.RemoveIDs = []
-        return slave_infos,remove_works,self.Qprocessing 
+                self.worker_info[key]['cpu'] -= 1
+                self.worker_info[key]['ram'] -= 1
+
+            else:
+
+                self.worker_info[key]['cpu'] = -1
+                self.worker_info[key]['ram'] = -1    
+
+        # self.RemoveIDs = []
+
+        # print "DISPATCHER"
+        # for val in remove_works:
+            # print "DISPATCHER",val
+
+        return slave_infos,self.RemoveIDs,self.Qprocessing 
 
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(

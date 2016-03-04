@@ -68,9 +68,17 @@ def dashboard():
 def status():
 	# SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
-	updates = dispatcher.getUpdates()
-	print updates[0]
-	return jsonify({"worker_info":updates[0],"finished":updates[1],"processing":updates[2]})
+	worker_info,finished,processing = dispatcher.getUpdates()
+
+	# for val in finished:
+	# 	print "SERVER",val
+
+	if (len(finished)==0):
+		print worker_info
+		print processing
+
+
+	return jsonify({"worker_info":worker_info,"finished":finished,"processing":processing})
 
 @app.route('/inputfolder', methods=['POST'])
 def inputfolder():

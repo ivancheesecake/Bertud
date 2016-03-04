@@ -1,5 +1,5 @@
 {
-	"dispatcherIP":"10.0.63.90",
+	"dispatcherIP":"169.254.23.41",
 	"workerID":"1", 
 	"tempFolder":"C:\\bertud_temp",
 	"pythonPath":"C:\\Python27\\ArcGIS10.2\\python.exe"

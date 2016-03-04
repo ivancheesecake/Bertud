@@ -12,6 +12,8 @@ import wx
 import json
 from skimage import io
 import subprocess
+import psutil
+import atexit
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -58,20 +60,35 @@ class BertudTaskBarIcon(wx.TaskBarIcon):
     def balloon_running(self):
         self.ShowBalloon("", "BERTUD POWER!")
 
+# On shutdown
+def exit_handler():
+
+    print "DIE, BITCH!"
+
+    process = psutil.Process(worker_usage_process.pid)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
+
 def main():
     #instantiate application
 
     with open("config/slave_config.json","r") as f:
         configfile = f.read()
-        config = json.loads(configfile) 
+        config = json.loads(configfile)
 
     if not os.path.exists(config["tempFolder"]):
-        os.makedirs(config["tempFolder"]) 
+        os.makedirs(config["tempFolder"])
 
     WORKERID = str(config["workerID"])
     print config["pythonPath"]
     # Run worker_usage.py
-    subprocess.Popen([config["pythonPath"],"worker_usage.py"])
+    worker_usage_process = subprocess.Popen([config["pythonPath"],"worker_usage.py"],shell=True)
+
+    # Attach atexit event
+
+    atexit.register(exit_handler)
+    # os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
 
     app = wx.PySimpleApp()
     taskbar = BertudTaskBarIcon()
@@ -129,14 +146,14 @@ def main():
             # classified= item.data["classified"]
             # slope= item.data["slope"]
             # slopeslope= item.data["slopeslope"]
-            
+
             item.start_time = time.time()
 
             with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
                 file.write(laz)
 
             # #Process the data
-            
+
             # print "Preparing Inputs..."
             # pi.prepareInputs()
 
@@ -151,7 +168,7 @@ def main():
             # print "Generating markers for Watershed segmentation..."
 
             # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
-            
+
             # print "Performing Watershed segmentation..."
 
             # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
@@ -161,11 +178,11 @@ def main():
             # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
 
             # print "Performing basic boundary regularization..."
-        
+
             # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
 
             # print "Creating final mask and saving output raster..."
-            
+
             # finalMask = ma.buildFinalMask(pieces,mergedMask)
             time.sleep(10)
 
@@ -174,7 +191,7 @@ def main():
             # item.result = finalMask
             #set the item's worker
             item.end_time = time.time()
-            
+
             #KAGEYAMA
             #return the result to the dispatcher
             try:
@@ -207,3 +224,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
