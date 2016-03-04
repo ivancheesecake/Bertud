@@ -11,6 +11,7 @@ import time
 import pickle
 import json
 
+
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
 
@@ -22,14 +23,14 @@ if sys.version_info < (3, 0):
 
 def main():
 	#connects to the dispatcher
-	
+
 	with open("config/slave_config.json","r") as f:
 		configfile = f.read()
 
-	config = json.loads(configfile)	
+	config = json.loads(configfile)
 
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["dispatcherIP"])
-	
+
 	#Iterativly update the worker's cpu and ram usage to the dispatcher
 	while True:
 		try:
@@ -51,7 +52,7 @@ def main():
 					print("Connected to dispatcher.")
 					break
 
-		time.sleep(1)
+		time.sleep(0.4)
 
 if __name__ == "__main__":
     main()

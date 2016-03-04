@@ -1,4 +1,4 @@
-workers = ["Non-Existent","Cheesecake-PC"]
+workers = ["Non-Existent","Cheesecake-PC","Cheesecake-Laptop"]
 
 files = []
 queue = []
@@ -27,10 +27,13 @@ $(document).ready(function() {
 
 	// $("#dest-folder").val("E:/FeatureExtractionOutputs")
 
-	// Loop this later
-	$("#cpu-pc1").hide();
-	$("#ram-pc1").hide();
+	//FIX THIS LATER
+	numworkers = 2;
 
+	for(i=1; i<=numworkers;i++){
+		$("#cpu-pc"+i).hide();
+		$("#ram-pc"+i).hide();
+	}
 	// Load initial work queue
 
 	$.ajax({
@@ -69,21 +72,23 @@ $(document).ready(function() {
 			url: 'http://127.0.0.1:5000/status',
 			type: 'GET',
 			success: function(resp){
-				update_queue(resp.finished,resp.processing);
+				update_queue(resp.finished,resp.processing,resp.worker_info);
 				update_pcs(resp.worker_info);
+				// console.log(resp.worker_info['1'].status)
 			}
 			});
 		}
-		, 5000);
+		, 2000);
 
 	
 });
 	
 function update_pcs(obj){
 
+	// console.log(obj)
 	$.each(obj, function(index,o){
 		
-		if(o.status==0 || o.cpu==-1){
+		if(o.status==0 || o.ram<-2){
 
 			$("#status-pc"+index).html("Status: Disconnected");
 			$("#panel-pc"+index).addClass('red')
@@ -94,9 +99,9 @@ function update_pcs(obj){
 			$("#ram-pc"+index).hide();
 		}
 
-		else{
+		else if(o.ram >0){
 
-			console.log(o.status)
+			// console.log(o.status)
 			if(o.status==1){
 				$("#status-pc"+index).html("Status: Ready");
 				$("#panel-pc"+index).addClass('green')
@@ -114,24 +119,48 @@ function update_pcs(obj){
 			$("#ram-pc"+index).show()
 			$("#cpu-pc"+index).html("CPU: "+o.cpu+"%");
 			$("#ram-pc"+index).html("RAM: "+o.ram+"%");
-		}	
+		}
+
+
 	});
 
 
 }
 
-function update_queue(finished,processing){
+function update_queue(finished,processing,worker_info){
 
-	console.log("HERE")
+	str = "";
 
+	for(index in finished){
+
+		str += finished[index].path+" ";
+	
+	}
+
+	console.log(str);
 	// Update processing
 
 	for(index in processing){
-		fname = processing[index].path.split("/").pop();
 
-		// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
-		htmlString = "<div>"+fname+"<a class='secondary-content'>"+workers[processing[index].worker_id]+"</a></div>"
-		$("#item"+processing[index].itemId).html(htmlString)
+		// Check worker_info
+		// console.log(worker_info[processing[index].worker_id].status)
+		if (worker_info[processing[index].worker_id].status=='1'){
+
+			fname = processing[index].path.split("/").pop();
+
+			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
+			htmlString = "<div>"+fname+"<a class='secondary-content'>Sending to "+workers[processing[index].worker_id]+"</a></div>"
+			$("#item"+processing[index].itemId).html(htmlString)
+		}
+
+		if (worker_info[processing[index].worker_id].status=='2'){
+
+			fname = processing[index].path.split("/").pop();
+
+			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
+			htmlString = "<div>"+fname+"<a class='secondary-content'>"+workers[processing[index].worker_id]+"</a></div>"
+			$("#item"+processing[index].itemId).html(htmlString)
+		}
 		
 	}
 
@@ -141,12 +170,17 @@ function update_queue(finished,processing){
 
 	// Remove finished elements
 	for(index in finished){
-		fname = finished[index].path.split("/").pop();
-		console.log("#item"+finished[index].itemId);
-		$("#item"+finished[index].item_id).remove();
-
-		Materialize.toast(workers[parseInt(finished[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
 		
+		//Inefficient, size of queue will grow indefinitely
+
+		if($("#item"+finished[index].item_id).length){
+			fname = finished[index].path.split("/").pop();
+			//console.log("#item"+finished[index].path);
+
+			$("#item"+finished[index].item_id).remove();
+
+			Materialize.toast(workers[parseInt(finished[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
+		}
 	}
 
 
