@@ -2,5 +2,6 @@
 	"dispatcherIP":"169.254.23.41",
 	"workerID":"1", 
 	"tempFolder":"C:\\bertud_temp",
+	"maxAllowableCore":"6",
 	"pythonPath":"C:\\Python27\\ArcGIS10.2\\python.exe"
 }
