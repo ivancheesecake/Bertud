@@ -73,7 +73,7 @@ $(document).ready(function() {
 			type: 'GET',
 			success: function(resp){
 				update_queue(resp.finished,resp.processing,resp.worker_info);
-				update_pcs(resp.worker_info);
+				update_pcs(resp.worker_info,-10);
 				// console.log(resp.worker_info['1'].status)
 			}
 			});
@@ -83,12 +83,12 @@ $(document).ready(function() {
 	
 });
 	
-function update_pcs(obj){
+function update_pcs(obj,disconnectionThreshold){
 
 	// console.log(obj)
 	$.each(obj, function(index,o){
 		
-		if(o.status==0 || o.ram<-5){
+		if(o.status==0 || o.ram<disconnectionThreshold){
 
 			$("#status-pc"+index).html("Status: Disconnected");
 			$("#panel-pc"+index).addClass('red')
@@ -179,7 +179,7 @@ function update_queue(finished,processing,worker_info){
 
 			$("#item"+finished[index].item_id).remove();
 
-			Materialize.toast(workers[parseInt(finished[index].worker_id)]+' finished processing '+fname+"!", 4000,'green lighten-1')
+			Materialize.toast($('#name-pc'+finished[index].worker_id)+' finished processing '+fname+"!", 4000,'green lighten-1')
 		}
 	}
 

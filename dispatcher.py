@@ -15,6 +15,7 @@ import sys
 import pickle
 from skimage import io
 import time
+import json
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -43,8 +44,20 @@ class DispatcherQueue(object):
         # self.resultqueue = queue.Queue()
         # 
                             #id  #attributes
-        self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"},'2':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
+        # self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"},'2':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
+        self.worker_info = {} # Create 10 of these next time
 
+        with open("config/slaves.json","r") as f:
+            workersfile = f.read()  
+
+        workers = json.loads(workersfile)
+
+        for worker in workers:
+            self.worker_info[str(worker["workerID"])] = {'cpu':-1,'ram':-1,'status':"0"}
+
+    # def initializeWorkers(self,workers):
+    #     for worker in workers:
+    #         self.worker_info[str(worker["workerID"])] = {'cpu':-1,'ram':-1,'status':"0"}
 
     #function that receives work from client
     def putWork(self, item):
