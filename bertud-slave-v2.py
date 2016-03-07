@@ -14,6 +14,7 @@ from skimage import io
 import subprocess
 import psutil
 import atexit
+import psutil
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -30,6 +31,8 @@ TRAY_ICON_GRAY = 'img/white.png'
 TRAY_ICON_GREEN = 'img/green.png'
 #Indicates that the slave is working
 TRAY_ICON_RED = 'img/red.png'
+
+EXTREME_CPU_USAGE = 90
 
 class BertudTaskBarIcon(wx.TaskBarIcon):
     def __init__(self):
@@ -63,12 +66,30 @@ class BertudTaskBarIcon(wx.TaskBarIcon):
 # On shutdown
 def exit_handler():
 
-    print "DIE, BITCH!"
-
     process = psutil.Process(worker_usage_process.pid)
     for proc in process.children(recursive=True):
         proc.kill()
     process.kill()
+
+def getRecCores(itr = 3):
+    ave_cpu = []
+
+    for i in xrange(0,itr):
+        ave_cpu.append(psutil.cpu_percent())
+
+    ave_cpu_usage = sum(ave_cpu)/float(itr)
+
+    if ave_cpu_usage <= 25:                                 #low cpu usage
+        return 6
+    if ave_cpu_usage <= 37.5:
+        return 5
+    if ave_cpu_usage <= 50:                                 #moderate cpu usage
+        return 4
+    if ave_cpu_usage <= 62.5:
+        return 3
+    if ave_cpu_usage <= 75:                                 #high cpu usage
+        return 2
+
 
 def main():
     #instantiate application
@@ -97,13 +118,16 @@ def main():
 
     #make connection to dispatcher server
     dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["dispatcherIP"])
-
+    gotItem = False
     #Loop for getting work
     while True:
         #Check for work in dispatcher
         try:
-            print "HERE"
-            item, laz = dispatcher.getWork(WORKERID)
+            if psutil.cpu_percent() < EXTREME_CPU_USAGE:
+                item, laz = dispatcher.getWork(WORKERID)
+                gotItem = True
+            else:
+                dispatcher.updateWorkerStatus(WORKERID,'busy')
         #If there are no work available
         except ValueError:
             print("no work available yet.")
@@ -130,7 +154,8 @@ def main():
                     dispatcher.updateWorkerStatus(WORKERID,'1')
                     break
         #Processing work from dispatcher
-        else:
+        elif gotItem:
+            gotItem = False
             #Set taskbar's icon to red -> working
             taskbar.set_icon(TRAY_ICON_RED)
             taskbar.balloon_work()
@@ -179,7 +204,7 @@ def main():
 
             # print "Performing basic boundary regularization..."
 
-            # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
+            # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores())
 
             # print "Creating final mask and saving output raster..."
 

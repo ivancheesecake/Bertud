@@ -88,7 +88,7 @@ function update_pcs(obj){
 	// console.log(obj)
 	$.each(obj, function(index,o){
 		
-		if(o.status==0 || o.ram<-2){
+		if(o.status==0 || o.ram<-5){
 
 			$("#status-pc"+index).html("Status: Disconnected");
 			$("#panel-pc"+index).addClass('red')
