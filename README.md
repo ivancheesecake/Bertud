@@ -44,6 +44,7 @@ Options:
 * `dispatcherIP` - The IP address of the server
 * `workerID` - The statically assigned id of the slave
 * `tempFolder` - Path of temporary files
+* `maxAllowableCore` - Number of cores to use
 * `pythonPath` - Path of Python libraries and executables
 
 Sample `slave_config.json`
@@ -52,6 +53,7 @@ Sample `slave_config.json`
    "dispatcherIP":"10.0.3.115",
    "workerID":"1", 
    "tempFolder":"C:/bertud_temp",
+   "maxAllowableCore":"6",
    "pythonPath":"C:/Python27/ArcGIS10.3/"
 }`
 
