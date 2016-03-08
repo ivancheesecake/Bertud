@@ -221,7 +221,7 @@ def main():
                 # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
 
                 # print "Performing basic boundary regularization..."
-                getRecCores()
+
                 # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
 
                 # print "Creating final mask and saving output raster..."
