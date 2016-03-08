@@ -1,4 +1,4 @@
-workers = ["Non-Existent","Cheesecake-PC","Cheesecake-Laptop"]
+// workers = ["Non-Existent","Cheesecake-PC","Cheesecake-Laptop"]
 
 files = []
 queue = []
@@ -27,13 +27,6 @@ $(document).ready(function() {
 
 	// $("#dest-folder").val("E:/FeatureExtractionOutputs")
 
-	//FIX THIS LATER
-	numworkers = 2;
-
-	for(i=1; i<=numworkers;i++){
-		$("#cpu-pc"+i).hide();
-		$("#ram-pc"+i).hide();
-	}
 	// Load initial work queue
 
 	$.ajax({
@@ -63,7 +56,16 @@ $(document).ready(function() {
 	}).error(function() {
 		console.log("HERE");
 	});
-	
+
+	// $.ajax({
+	// 	url: 'http://127.0.0.1:5000/status',
+	// 	type: 'GET',
+	// 	success: function(resp){
+	// 		update_queue(resp.finished,resp.processing,resp.worker_info);
+	// 		update_pcs(resp.worker_info,-10);
+	// 			// console.log(resp.worker_info['1'].status)
+	// 	}
+	// });
 
 	// Update
 	setInterval(function(){
@@ -107,12 +109,24 @@ function update_pcs(obj,disconnectionThreshold){
 				$("#panel-pc"+index).addClass('green')
 				$("#panel-pc"+index).removeClass('red')
 				$("#panel-pc"+index).removeClass('orange')
+				$("#panel-pc"+index).removeClass('grey')
 			}
 			else if(o.status==2){
 				$("#status-pc"+index).html("Status: Processing");
 				$("#panel-pc"+index).addClass('orange')
 				$("#panel-pc"+index).removeClass('red')
 				$("#panel-pc"+index).removeClass('green')
+				$("#panel-pc"+index).removeClass('grey')
+
+			}
+			else if(o.status=='busy'){
+
+				$("#status-pc"+index).html("Status: Busy");
+				$("#panel-pc"+index).addClass('grey')
+				$("#panel-pc"+index).removeClass('red')
+				$("#panel-pc"+index).removeClass('green')
+				$("#panel-pc"+index).removeClass('orange')
+
 			}
 
 			$("#cpu-pc"+index).show()
@@ -179,7 +193,7 @@ function update_queue(finished,processing,worker_info){
 
 			$("#item"+finished[index].item_id).remove();
 
-			Materialize.toast($('#name-pc'+finished[index].worker_id)+' finished processing '+fname+"!", 4000,'green lighten-1')
+			Materialize.toast(workers[finished[index].worker_id]+' finished processing '+fname+"!", 4000,'green lighten-1')
 		}
 	}
 
