@@ -71,8 +71,9 @@ def exit_handler():
         proc.kill()
     process.kill()
 
-def getRecCores(itr = 3, timeout = 1):
+def getRecCores(maxCores, itr = 3, timeout = 1):
     ave_cpu = []
+    recCores = 2
 
     for i in xrange(0,itr):
         time.sleep(timeout)
@@ -84,20 +85,18 @@ def getRecCores(itr = 3, timeout = 1):
     # print "HEY",ave_cpu_usage
 
     if ave_cpu_usage <= 25:                                 #low cpu usage
-        print 6
-        return 6
-    if ave_cpu_usage <= 37.5:
-        print 5
-        return 5
-    if ave_cpu_usage <= 50:                                 #moderate cpu usage
-        print 4
-        return 4
-    if ave_cpu_usage <= 62.5:
-        print 3
-        return 3
-    
-    print 2
-    return 2
+        recCores = 6
+    elif ave_cpu_usage <= 37.5:
+        recCores = 5
+    elif ave_cpu_usage <= 50:                                 #moderate cpu usage
+        recCores = 4
+    elif ave_cpu_usage <= 62.5:
+        recCores = 3
+
+    if recCores > maxCores:
+        return maxCores
+    else:
+        return recCores
 
 
 def main():
@@ -109,6 +108,8 @@ def main():
 
     if not os.path.exists(config["tempFolder"]):
         os.makedirs(config["tempFolder"])
+
+    recommendedCores = int(config["maxAllowableCore"])
 
     WORKERID = str(config["workerID"])
     print config["pythonPath"]
@@ -221,7 +222,7 @@ def main():
 
                 # print "Performing basic boundary regularization..."
                 getRecCores()
-                # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores())
+                # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
 
                 # print "Creating final mask and saving output raster..."
 
