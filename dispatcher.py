@@ -15,6 +15,7 @@ import sys
 import pickle
 from skimage import io
 import time
+import json
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -43,8 +44,20 @@ class DispatcherQueue(object):
         # self.resultqueue = queue.Queue()
         # 
                             #id  #attributes
-        self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"},'2':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
+        # self.worker_info = {'1':{'cpu':-1,'ram':-1,'status':"0"},'2':{'cpu':-1,'ram':-1,'status':"0"}} # Create 10 of these next time
+        self.worker_info = {} # Create 10 of these next time
 
+        with open("config/slaves.json","r") as f:
+            workersfile = f.read()  
+
+        workers = json.loads(workersfile)
+
+        for worker in workers:
+            self.worker_info[str(worker["workerID"])] = {'cpu':-1,'ram':-1,'status':"0"}
+
+    # def initializeWorkers(self,workers):
+    #     for worker in workers:
+    #         self.worker_info[str(worker["workerID"])] = {'cpu':-1,'ram':-1,'status':"0"}
 
     #function that receives work from client
     def putWork(self, item):
@@ -161,7 +174,7 @@ class DispatcherQueue(object):
     def getUpdates(self):
 
         slave_infos= copy.deepcopy(self.worker_info)
-        # remove_works= copy.deepcopy(self.RemoveIDs)
+        remove_works= copy.deepcopy(self.RemoveIDs)
         
 
         for key,obj in self.worker_info.iteritems():
@@ -176,13 +189,14 @@ class DispatcherQueue(object):
                 self.worker_info[key]['cpu'] = -1
                 self.worker_info[key]['ram'] = -1    
 
-        # self.RemoveIDs = []
+        if len(self.Qprocessing) == 0 and len(self.Qwaiting) == 0:
+            self.RemoveIDs = []
 
         # print "DISPATCHER"
         # for val in remove_works:
             # print "DISPATCHER",val
 
-        return slave_infos,self.RemoveIDs,self.Qprocessing 
+        return slave_infos,remove_works,self.Qprocessing 
 
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(

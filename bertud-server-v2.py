@@ -39,6 +39,10 @@ def exit_handler():
 
 atexit.register(exit_handler)
 
+def chunks(l, n):
+    n = max(1, n)
+    return [l[i:i + n] for i in range(0, len(l), n)]
+
 @app.route('/')
 def index():
 	print ip
@@ -50,6 +54,9 @@ def index():
 
 	subprocess.Popen([pythonPath+"/Scripts/pyro4-ns","--host",ip])
 	subprocess.Popen([pythonPath+"python","dispatcher.py",ip])
+
+	# dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	# dispatcher.initializeWorkers(workers)
 	
 	return redirect(url_for('dashboard'))
 				
@@ -61,7 +68,7 @@ def dashboard():
 
 	for proc in psutil.process_iter():
 	    if proc.name() == "pyro4-ns.exe":
-	    	return render_template("index-v3.html",defaultFolders=defaultFolders)
+	    	return render_template("index-v4.html",defaultFolders=defaultFolders,workers=workersChunks)
 	return redirect(url_for('index'))    	
 
 @app.route('/status')
@@ -170,11 +177,16 @@ def getFinished():
 	return jsonify(finished)
 
 if __name__ == '__main__':
+	
 	with open("config/config.json","r") as f:
 		configfile = f.read()
 
-	config = json.loads(configfile)	
+	with open("config/slaves.json","r") as f:
+		workersfile = f.read()	
 
+	config = json.loads(configfile)
+	workers = json.loads(workersfile)	
+	workersChunks = chunks(workers,3)
 	ip= config["ip"]
 	pythonPath= config["pythonPath"]
 	defaultInputFolder = config["defaultInputFolder"]

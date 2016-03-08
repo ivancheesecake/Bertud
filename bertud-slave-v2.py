@@ -14,6 +14,7 @@ from skimage import io
 import subprocess
 import psutil
 import atexit
+import psutil
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -30,6 +31,8 @@ TRAY_ICON_GRAY = 'img/white.png'
 TRAY_ICON_GREEN = 'img/green.png'
 #Indicates that the slave is working
 TRAY_ICON_RED = 'img/red.png'
+
+EXTREME_CPU_USAGE = 90
 
 class BertudTaskBarIcon(wx.TaskBarIcon):
     def __init__(self):
@@ -63,12 +66,39 @@ class BertudTaskBarIcon(wx.TaskBarIcon):
 # On shutdown
 def exit_handler():
 
-    print "DIE, BITCH!"
-
     process = psutil.Process(worker_usage_process.pid)
     for proc in process.children(recursive=True):
         proc.kill()
     process.kill()
+
+def getRecCores(itr = 3, timeout = 1):
+    ave_cpu = []
+
+    for i in xrange(0,itr):
+        time.sleep(timeout)
+        ave_cpu.append(psutil.cpu_percent())
+
+    # print ave_cpu
+    ave_cpu_usage = sum(ave_cpu)/float(itr)
+
+    # print "HEY",ave_cpu_usage
+
+    if ave_cpu_usage <= 25:                                 #low cpu usage
+        print 6
+        return 6
+    if ave_cpu_usage <= 37.5:
+        print 5
+        return 5
+    if ave_cpu_usage <= 50:                                 #moderate cpu usage
+        print 4
+        return 4
+    if ave_cpu_usage <= 62.5:
+        print 3
+        return 3
+    
+    print 2
+    return 2
+
 
 def main():
     #instantiate application
@@ -97,13 +127,23 @@ def main():
 
     #make connection to dispatcher server
     dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["dispatcherIP"])
-
+    gotItem = False
     #Loop for getting work
     while True:
         #Check for work in dispatcher
         try:
-            print "HERE"
-            item, laz = dispatcher.getWork(WORKERID)
+            time.sleep(0.5)
+            cpu = psutil.cpu_percent()
+            print cpu,EXTREME_CPU_USAGE
+
+            if cpu < EXTREME_CPU_USAGE:
+
+                item, laz = dispatcher.getWork(WORKERID)
+                gotItem = True
+            else:
+                print "EXTREEEEEEME!"
+                gotItem = False
+                dispatcher.updateWorkerStatus(WORKERID,'busy')
         #If there are no work available
         except ValueError:
             print("no work available yet.")
@@ -131,93 +171,95 @@ def main():
                     break
         #Processing work from dispatcher
         else:
-            #Set taskbar's icon to red -> working
-            taskbar.set_icon(TRAY_ICON_RED)
-            taskbar.balloon_work()
+            if gotItem:
+                gotItem = False
+                #Set taskbar's icon to red -> working
+                taskbar.set_icon(TRAY_ICON_RED)
+                taskbar.balloon_work()
 
-            print("Got some work...")
-            # print item
-            print "Changed worker status"
-            dispatcher.updateWorkerStatus(WORKERID,'2')
-            print dispatcher.getUpdates()[0]
+                print("Got some work...")
+                # print item
+                print "Changed worker status"
+                dispatcher.updateWorkerStatus(WORKERID,'2')
+                print dispatcher.getUpdates()[0]
 
-            # Use the data collected from the dispatcher
-            # ndsm = item.data["ndsm"]
-            # classified= item.data["classified"]
-            # slope= item.data["slope"]
-            # slopeslope= item.data["slopeslope"]
+                # Use the data collected from the dispatcher
+                # ndsm = item.data["ndsm"]
+                # classified= item.data["classified"]
+                # slope= item.data["slope"]
+                # slopeslope= item.data["slopeslope"]
 
-            item.start_time = time.time()
+                item.start_time = time.time()
 
-            with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
-                file.write(laz)
+                with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
+                    file.write(laz)
 
-            # #Process the data
+                # #Process the data
 
-            # print "Preparing Inputs..."
-            # pi.prepareInputs()
+                # print "Preparing Inputs..."
+                # pi.prepareInputs()
 
-            # ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
-            # classified = io.imread("C:\\bertud_temp\\classified.tif")
-            # slope = io.imread("C:\\bertud_temp\\slope.tif")
-            # slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
+                # ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
+                # classified = io.imread("C:\\bertud_temp\\classified.tif")
+                # slope = io.imread("C:\\bertud_temp\\slope.tif")
+                # slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
 
-            # print "Generating Initial Mask..."
-            # veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
+                # print "Generating Initial Mask..."
+                # veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
-            # print "Generating markers for Watershed segmentation..."
+                # print "Generating markers for Watershed segmentation..."
 
-            # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+                # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
 
-            # print "Performing Watershed segmentation..."
+                # print "Performing Watershed segmentation..."
 
-            # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+                # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
 
-            # print "Performing basic region merging..."
+                # print "Performing basic region merging..."
 
-            # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+                # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
 
-            # print "Performing basic boundary regularization..."
+                # print "Performing basic boundary regularization..."
+                getRecCores()
+                # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores())
 
-            # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=6)
+                # print "Creating final mask and saving output raster..."
 
-            # print "Creating final mask and saving output raster..."
+                # finalMask = ma.buildFinalMask(pieces,mergedMask)
+                time.sleep(10)
 
-            # finalMask = ma.buildFinalMask(pieces,mergedMask)
-            time.sleep(10)
+                finalMask = io.imread("C:/bertud_temp/slope.tif")
+                #set the output to the item's final result
+                # item.result = finalMask
+                #set the item's worker
+                item.end_time = time.time()
 
-            finalMask = io.imread("C:/bertud_temp/slope.tif")
-            #set the output to the item's final result
-            # item.result = finalMask
-            #set the item's worker
-            item.end_time = time.time()
+                #KAGEYAMA
+                #return the result to the dispatcher
+                try:
+                    dispatcher.putResult(item, finalMask)
+                    dispatcher.updateWorkerStatus(WORKERID,'1')
+                except:
+                    while True:
+                        #Try to reconnect to dispatcher
+                        try:
+                            print("Dispatcher not found. Reconnecting...")
+                            dispatcher._pyroReconnect()
+                        #Can't connect -> Sleep then retry again
+                        except Exception:
+                            time.sleep(1)
+                        #Reconnecting succesful
+                        else:
+                            dispatcher.putResult(item, finalMask)
+                            dispatcher.updateWorkerStatus(WORKERID,'1')
+                            print("Connected to dispatcher.")
+                            break
 
-            #KAGEYAMA
-            #return the result to the dispatcher
-            try:
-                dispatcher.putResult(item, finalMask)
-                dispatcher.updateWorkerStatus(WORKERID,'1')
-            except:
-                while True:
-                    #Try to reconnect to dispatcher
-                    try:
-                        print("Dispatcher not found. Reconnecting...")
-                        dispatcher._pyroReconnect()
-                    #Can't connect -> Sleep then retry again
-                    except Exception:
-                        time.sleep(1)
-                    #Reconnecting succesful
-                    else:
-                        dispatcher.putResult(item, finalMask)
-                        dispatcher.updateWorkerStatus(WORKERID,'1')
-                        print("Connected to dispatcher.")
-                        break
+                # dispatcher.putResult(item)
 
-            # dispatcher.putResult(item)
-
-            #set taskbar's icon to green -> available
-            taskbar.set_icon(TRAY_ICON_GREEN)
-            taskbar.balloon_free()
+                #set taskbar's icon to green -> available
+                taskbar.set_icon(TRAY_ICON_GREEN)
+                taskbar.balloon_free()
 
     #loop the application
     app.MainLoop()
