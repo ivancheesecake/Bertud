@@ -20,7 +20,7 @@ Building Footprint Extraction and Regularization Through Utilization of a Distri
 
 ###Master configuration
 Edit `config.json`.
-
+	Sample location: "C:\Users\...\Bertud\config\config.json"
 Options:
 
 * `ip` - IP address of master
@@ -60,7 +60,7 @@ Sample `slave_config.json`
 ###Starting master/slave
 Open command line(s)
 * To run the master: `runserver.bat`
-* To run slaves: `start bertud-slave-v2`
+* To run slaves: `start bertud-slave-v2.py`
  
 ###Dashboard
 * On the master, access http://127.0.0.1:5000 in your browser (pref. Chrome)
