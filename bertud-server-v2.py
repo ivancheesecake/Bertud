@@ -176,6 +176,19 @@ def getFinished():
 
 	return jsonify(finished)
 
+@app.route('/reports')
+def reports():
+
+	reports = pickle.load(open("config/finished_work.p","rb"));
+
+	workers_reports = {}
+	
+	for w in workers:
+		workers_reports[w['workerID']] = w['workerName']
+
+	return render_template("reports.html",reports=reports,workers=workers_reports)
+
+
 if __name__ == '__main__':
 	
 	with open("config/config.json","r") as f:
@@ -195,3 +208,4 @@ if __name__ == '__main__':
 	defaultFolders = defaultInputFolder,defaultOutputFolder
 
 	app.run(debug=True,host='0.0.0.0')
+
