@@ -12,9 +12,9 @@ import wx
 import json
 from skimage import io
 import subprocess
-import psutil
 import atexit
 import psutil
+import shutil
 
 Pyro4.config.SERIALIZER = "pickle"
 
@@ -107,7 +107,7 @@ def main():
         config = json.loads(configfile)
 
     if not os.path.exists(config["tempFolder"]):
-        os.makedirs(config["tempFolder"])
+        os.makedirs(config["tempFolder"])    
 
     recommendedCores = int(config["maxAllowableCore"])
 
@@ -192,46 +192,63 @@ def main():
 
                 item.start_time = time.time()
 
-                with open("C:\\bertud_temp\\pointcloud.laz", "wb") as file:
+                print "Clearing temp folder..."
+
+                # http://stackoverflow.com/questions/185936/delete-folder-contents-in-python
+                for the_file in os.listdir(config["tempFolder"]):
+                    
+                    file_path = os.path.join(config["tempFolder"], the_file)
+                    try:
+                        if os.path.isfile(file_path):
+                            os.unlink(file_path)
+                        elif os.path.isdir(file_path): 
+                            shutil.rmtree(file_path)
+                    
+                    except Exception, e:
+                        print e
+
+
+                with open(config["tempFolder"]+"\\pointcloud.laz", "wb") as file:
                     file.write(laz)
 
-                # #Process the data
+                #Process the data
 
-                # print "Preparing Inputs..."
-                # pi.prepareInputs()
+                print "Preparing Inputs..."
+                pi.prepareInputs()
 
-                # ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
-                # classified = io.imread("C:\\bertud_temp\\classified.tif")
-                # slope = io.imread("C:\\bertud_temp\\slope.tif")
-                # slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
+                ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
+                classified = io.imread("C:\\bertud_temp\\classified.tif")
+                slope = io.imread("C:\\bertud_temp\\slope.tif")
+                slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
 
-                # print "Generating Initial Mask..."
-                # veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
+                print "Generating Initial Mask..."
+                veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
 
-                # print "Generating markers for Watershed segmentation..."
+                print "Generating markers for Watershed segmentation..."
 
-                # initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+                initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
 
-                # print "Performing Watershed segmentation..."
+                print "Performing Watershed segmentation..."
 
-                # labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+                labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
 
-                # print "Performing basic region merging..."
+                print "Performing basic region merging..."
 
-                # mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+                mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
 
-                # print "Performing basic boundary regularization..."
+                print "Performing basic boundary regularization..."
 
-                # pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
+                pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
 
-                # print "Creating final mask and saving output raster..."
+                print "Creating final mask and saving output raster..."
 
-                # finalMask = ma.buildFinalMask(pieces,mergedMask)
-                time.sleep(10)
+                finalMask = ma.buildFinalMask(pieces,mergedMask)
+                
+                # time.sleep(10)
 
-                finalMask = io.imread("C:/bertud_temp/slope.tif")
+                # finalMask = io.imread("C:/bertud_temp/slope.tif")
                 #set the output to the item's final result
-                # item.result = finalMask
+                item.result = finalMask
                 #set the item's worker
                 item.end_time = time.time()
 

@@ -180,9 +180,10 @@ def getFinished():
 def reports():
 
 	reports = pickle.load(open("config/finished_work.p","rb"));
-
+	reports = reports.items()
+	reports.sort(key=lambda x:x[1]['itemId'],reverse=True)
 	workers_reports = {}
-	
+
 	for w in workers:
 		workers_reports[w['workerID']] = w['workerName']
 

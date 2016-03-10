@@ -233,15 +233,15 @@ sS'path'
 p116
 VE:/FeatureExtractionV4/pipelinev6/inputs/ground/pt000002.laz
 p117
-ssS'2618'
+ssS'2619'
 p118
 (dp119
 S'itemId'
 p120
-I2618
+I2619
 sS'start_time'
 p121
-S'Thu Mar 10 11:21:25 2016'
+S'Thu Mar 10 14:23:35 2016'
 p122
 sS'worker_id'
 p123
@@ -249,14 +249,118 @@ S'0'
 p124
 sS'output_path'
 p125
-VE:/FeatureExtractionOutputs/pt000128.tif
+VE:/FeatureExtractionOutputs/pt000015.tif
 p126
 sS'end_time'
 p127
-S'Thu Mar 10 11:21:35 2016'
+S'Thu Mar 10 14:45:18 2016'
 p128
 sS'path'
 p129
-VE:/FeatureExtractionV4/pipelinev6/inputs/ground/pt000128.laz
+VE:/testinput/pt000015.laz
 p130
+ssS'2618'
+p131
+(dp132
+S'itemId'
+p133
+I2618
+sS'start_time'
+p134
+S'Thu Mar 10 11:21:25 2016'
+p135
+sS'worker_id'
+p136
+S'0'
+p137
+sS'output_path'
+p138
+VE:/FeatureExtractionOutputs/pt000128.tif
+p139
+sS'end_time'
+p140
+S'Thu Mar 10 11:21:35 2016'
+p141
+sS'path'
+p142
+VE:/FeatureExtractionV4/pipelinev6/inputs/ground/pt000128.laz
+p143
+ssS'2621'
+p144
+(dp145
+S'itemId'
+p146
+I2621
+sS'start_time'
+p147
+S'Thu Mar 10 15:08:08 2016'
+p148
+sS'worker_id'
+p149
+S'0'
+p150
+sS'output_path'
+p151
+VE:/FeatureExtractionOutputs/pt000015.tif
+p152
+sS'end_time'
+p153
+S'Thu Mar 10 15:12:39 2016'
+p154
+sS'path'
+p155
+VE:/testinput/pt000015.laz
+p156
+ssS'2624'
+p157
+(dp158
+S'itemId'
+p159
+I2624
+sS'start_time'
+p160
+S'Thu Mar 10 16:55:04 2016'
+p161
+sS'worker_id'
+p162
+S'0'
+p163
+sS'output_path'
+p164
+VE:/FeatureExtractionOutputs/pt000015.tif
+p165
+sS'end_time'
+p166
+S'Thu Mar 10 16:59:46 2016'
+p167
+sS'path'
+p168
+VE:/testinput/pt000015.laz
+p169
+ssS'2623'
+p170
+(dp171
+S'itemId'
+p172
+I2623
+sS'start_time'
+p173
+S'Thu Mar 10 16:28:26 2016'
+p174
+sS'worker_id'
+p175
+S'1'
+p176
+sS'output_path'
+p177
+VE:/FeatureExtractionOutputs/pt000015.tif
+p178
+sS'end_time'
+p179
+S'Thu Mar 10 16:50:37 2016'
+p180
+sS'path'
+p181
+VE:/testinput/pt000015.laz
+p182
 ss.

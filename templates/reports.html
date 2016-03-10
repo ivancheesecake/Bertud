@@ -107,15 +107,16 @@
 			</thead>
 			<tbody>
 			{%
-				for key,report in reports.iteritems():
+				for report in reports:
 			%}
 			<tr>
-				<td>{{report['path']}}</td>
-				<td>{{report['output_path']}}</td>
-				<td>{{report['start_time']}}</td>
-				<td>{{report['end_time']}}</td>
-				<td>{{workers[report['worker_id']]}}</td>
+				<td>{{report[1]['path']}}</td>
+				<td>{{report[1]['output_path']}}</td>
+				<td>{{report[1]['start_time']}}</td>
+				<td>{{report[1]['end_time']}}</td>
+				<td>{{workers[report[1]['worker_id']]}}</td>
 			</tr>
+			<!-- {{report}} -->
 			{% endfor %}	
 		
 			</tbody>
