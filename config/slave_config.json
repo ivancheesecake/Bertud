@@ -1,6 +1,6 @@
 {
-   "dispatcherIP":"10.0.3.115",
-   "workerID":"1", 
+   "dispatcherIP":"10.0.3.6",
+   "workerID":"0", 
    "tempFolder":"C:/bertud_temp",
    "maxAllowableCore":"6",
    "pythonPath":"C:/Python27/ArcGIS10.3/python.exe"
