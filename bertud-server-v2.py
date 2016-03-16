@@ -36,7 +36,7 @@ def chunks(l, n):
 def exit_handler():
 
 	# Define processes to be closed 
-	PROCNAMES = ["pyro4-ns.exe","python.exe"]
+	PROCNAMES = ["pyro4-ns.exe","python.exe","python","pyro4-ns"]
 
 	for proc in psutil.process_iter():
 	    # Check whether the process name matches

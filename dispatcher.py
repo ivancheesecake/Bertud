@@ -132,9 +132,14 @@ class DispatcherQueue(object):
 
         #update finished works
         #Dictify this
-        work_F = pickle.load(open("config/finished_work.p", "rb"))
-        work_F[str(item.itemId)] = item.dictify()
-        pickle.dump(work_F, open("config/finished_work.p", "wb"))
+	try:
+           with open('config/finished_work.p',"rb") as f: 
+	      work_F = pickle.load(f)
+              work_F[str(item.itemId)] = item.dictify()
+              pickle.dump(work_F, open("config/finished_work.p", "wb"))
+	except IOError:
+              pickle.dump(work_F, open("config/finished_work.p", "wb"))
+	   
 
         #write output file
  
