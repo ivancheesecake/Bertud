@@ -33,26 +33,27 @@ def prepareInputs():
 
 	# Run lasground
 	# Note: Nasa laszip dapat
+	os.chdir(lastoolsPath)
 
 	print "Running LASground..."
 
-	subprocess.call([lastoolsPath+"lasground_new", "-i", "C:/bertud_temp/pointcloud.laz","-metro", "-compute_height","-odir", "C:/bertud_temp/", "-o","ground.laz"], stdout=subprocess.PIPE)
+	subprocess.call(["lasground_new", "-i", "C:/bertud_temp/pointcloud.laz","-metro", "-compute_height","-odir", "C:/bertud_temp/", "-o","ground.laz"], stdout=subprocess.PIPE)
 
 	print "Running LASClassify..."
 
 	# Prepare file_list.txt
 
-	subprocess.call([lastoolsPath+"lasclassify", "-i", "C:/bertud_temp/ground.laz","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
+	subprocess.call(["lasclassify", "-i", "C:/bertud_temp/ground.laz","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
 
 	print "Running LASGrid..."
 
 	# Prepare file_list.txt
-	subprocess.call([lastoolsPath+"lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-classification","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
 
 	print "Running blast2DEM..."
 	
-	subprocess.call([lastoolsPath+"blast2dem", "-i", "C:/bertud_temp/classified.laz", "-first_only","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dsm.tif"], stdout=subprocess.PIPE)
-	subprocess.call([lastoolsPath+"blast2dem", "-i", "C:/bertud_temp/classified.laz", "-keep_classification","2","-keep_classification","8","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dtm.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["blast2dem", "-i", "C:/bertud_temp/classified.laz", "-first_only","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dsm.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["blast2dem", "-i", "C:/bertud_temp/classified.laz", "-keep_classification","2","-keep_classification","8","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dtm.tif"], stdout=subprocess.PIPE)
 
 
 	dsm = io.imread("C:/bertud_temp/dsm.tif")

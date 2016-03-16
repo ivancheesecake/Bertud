@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+	<title>BERTUD: Building Footprint Extraction and Regularization Through Utilization of a Distributed Computing System</title>
+
+	<!-- Fonts -->
+
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/materialize.css')}}" />
+	<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/style.css')}}?q=1280549780" />
+	<style>
+
+	@font-face {
+		  font-family: "Roboto";
+		  src: local(Roboto Thin), url("{{url_for('static',filename='font/Roboto-Thin.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Thin.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Thin.woff2')}}") format("woff2"), url("{{url_for('static',filename='font/Roboto-Thin.woff')}}") format("woff"), url("{{url_for('static',filename='font/Roboto-Thin.ttf')}}") format("truetype");
+		  font-weight: 200;
+		}
+		
+		@font-face {
+		  font-family: "Roboto Light";
+		  src: local(Roboto Light), url("{{url_for('static',filename='font/Roboto-Light.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Light.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Light.woff2')}}") format("woff2"), url(".{{url_for('static',filename='font/Roboto-Light.woff')}}") format("woff"), url(".{{url_for('static',filename='font/Roboto-Light.ttf')}}") format("truetype");
+		  font-weight: 300;
+		}
+		
+		@font-face {
+		  font-family: "Roboto Regular";
+		  src: local(Roboto Regular), url("{{url_for('static',filename='font/Roboto-Regular.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Regular.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Regular.woff2')}}") format("woff2"), url("{{url_for('static',filename='font/Roboto-Regular.woff')}}") format("woff"), url("{{url_for('static',filename='font/Roboto-Regular.ttf')}}") format("truetype");
+		  font-weight: 400;
+		}
+
+		@font-face {
+		  font-family: "Roboto Medium";
+		  src: url("{{url_for('static',filename='font/Roboto-Medium.eot')}}");
+		  src: url("{{url_for('static',filename='font/Roboto-Medium.eot')}}?#iefix") format("embedded-opentype"), url("../font/roboto/Roboto-Medium.woff2") format("woff2"), url("../font/roboto/Roboto-Medium.woff") format("woff"), url("../font/roboto/Roboto-Medium.ttf") format("truetype");
+		  font-weight: 500;
+		}
+
+		@font-face {
+		  font-family: "Roboto Bold";
+		  src: url("{{url_for('static',filename='font/Roboto-Bold.eot')}}")
+		  src: url("{{url_for('static',filename='font/Roboto-Bold.eot')}}?#iefix") format("embedded-opentype"), url("{{url_for('static',filename='font/Roboto-Bold.woff2')}}") format("woff2"), url("{{url_for('static',filename='font/Roboto-Bold.woff')}}") format("woff"), url("{{url_for('static',filename='font/Roboto-Bold.ttf')}}") format("truetype");
+		  font-weight: 700;
+		}
+
+		@font-face {
+		  font-family: 'Material Icons';
+		  font-style: normal;
+		  font-weight: 400;
+		  src: local('Material Icons'), local('MaterialIcons-Regular'), url("{{url_for('static',filename='font/MaterialIcons-Regular.woff2')}}") format('woff2');
+		}
+
+		.material-icons {
+		  font-family: 'Material Icons';
+		  font-weight: normal;
+		  font-style: normal;
+		  font-size: 24px;
+		  line-height: 1;
+		  letter-spacing: normal;
+		  text-transform: none;
+		  display: inline-block;
+		  white-space: nowrap;
+		  word-wrap: normal;
+		  direction: ltr;
+		  -webkit-font-feature-settings: 'liga';
+		  -webkit-font-smoothing: antialiased;
+		}
+
+
+	</style>
+
+	
+	<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+
+</head>
+
+<body>
+
+
+	<nav>
+		<div class="nav-wrapper blue darken-3">
+			<a href="#" class="brand-logo">
+
+				<img id="navbar-icon" src="{{url_for('static',filename='img/logo.png')}}"/>
+
+				<ul id="nav-mobile" class="right hide-on-med-and-down">
+						<li class='active'><a href="#">View Reports</a></li>
+				    </ul>
+				<!-- <span style="margin-top:5px;">Bertud</span> -->
+			</a>
+		</div> 
+	</nav>
+
+	<div class="row" id="main">
+		<div class="col s12 m12 l12">
+		<h1>Reports</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Input File</th>
+					<th>Output File</th>
+					<th>Start Time</th>
+					<th>End Time</th>
+					<th>Processed By</th>
+				</tr>
+			</thead>
+			<tbody>
+			{%
+				for report in reports:
+			%}
+			<tr>
+				<td>{{report[1]['path']}}</td>
+				<td>{{report[1]['output_path']}}</td>
+				<td>{{report[1]['start_time']}}</td>
+				<td>{{report[1]['end_time']}}</td>
+				<td>{{workers[report[1]['worker_id']]}}</td>
+			</tr>
+			<!-- {{report}} -->
+			{% endfor %}	
+		
+			</tbody>
+		</table>
+		
+		</div>
+	</div>
+
+	<script type="text/javascript" src="{{url_for('static',filename='js/jquery-1.12.0.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static',filename='js/materialize.min.js')}}"></script>
+
+</body>
+
+
+
+</html>
