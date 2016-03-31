@@ -10,6 +10,7 @@ class Workitem(object):
         self.worker_id = None
         self.start_time = None
         self.end_time = None
+        self.error_msg = ""
 
     def __str__(self):
         return "<Workitem id=%s>" % str(self.itemId)
@@ -29,7 +30,7 @@ class Workitem(object):
         # if self.start_time != None and self.end_time != None:
         #     time_elapsed = (self.end_time - self.start_time)
 
-        return {"itemId":self.itemId,"path":self.path,"output_path":self.output_path,"worker_id":self.worker_id,"start_time":start_formatted,"end_time":end_formatted}
+        return {"itemId":self.itemId,"path":self.path,"output_path":self.output_path,"worker_id":self.worker_id,"start_time":start_formatted,"end_time":end_formatted,"error_msg":self.error_msg}
 
     @staticmethod
     def from_dict(classname, d):
@@ -40,6 +41,7 @@ class Workitem(object):
         w.worker_id = d["worker_id"]
         w.start_time = d["start_time"]
         w.end_time = d["end_time"]
+        w.error_msg = d["error_msg"]
         return w
 
         

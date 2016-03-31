@@ -37,6 +37,7 @@ class DispatcherQueue(object):
             # self.Qwaiting.put(item)
             self.Qwaiting[key] = item
 
+        self.Qerror = {}
         self.Qprocessing = {}
         self.Qfinished = {}
         self.RemoveIDs = []
@@ -82,6 +83,22 @@ class DispatcherQueue(object):
         pickle.dump(work_q, open("config/work_queue.p", "wb"))
         return removed.dictify()
 
+    def saveError(self, item):
+        self.Qprocessing.pop(str(item.itemId), None)
+        self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id,"error":"True"})
+        self.Qerror[str(item.itemId)] = item
+
+        #update the error_queue item for backup
+        error_q = pickle.load(open("config/error_queue.p", "rb"))
+        error_q[str(item.itemId)] = item
+        pickle.dump(error_q, open("config/error_queue.p", "wb"))
+
+        #update the work_queue item for backup
+        work_q = pickle.load(open("config/work_queue.p", "rb"))
+        work_q.pop(str(item.itemId), None)
+        pickle.dump(work_q, open("config/work_queue.p", "wb"))
+
+
     #slaves use this to check for available works
     def getWork(self, worker_ID, timeout=5):
         # try:
@@ -120,7 +137,7 @@ class DispatcherQueue(object):
     #function that receives results from slaves
     def putResult(self, item, output):
         self.Qprocessing.pop(str(item.itemId), None)
-        self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id})
+        self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id,"error":"False"})
         # Tried dictify()
 
         self.Qfinished[str(item.itemId)] = item.dictify()
@@ -148,7 +165,7 @@ class DispatcherQueue(object):
 
     #clients use this to check for available results
     def getResult(self):
-        return self.Qfinished
+        return self.Qfinished, self.Qerror
         # try:
         #     return self.resultqueue.get(block=True, timeout=timeout)
         # except queue.Empty:

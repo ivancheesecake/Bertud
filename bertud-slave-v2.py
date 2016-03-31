@@ -212,66 +212,92 @@ def main():
                     file.write(laz)
 
                 #Process the data
-
-                print "Preparing Inputs..."
-                pi.prepareInputs()
-
-                ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
-                classified = io.imread("C:\\bertud_temp\\classified.tif")
-                slope = io.imread("C:\\bertud_temp\\slope.tif")
-                slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
-
-                print "Generating Initial Mask..."
-                veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
-
-                print "Generating markers for Watershed segmentation..."
-
-                initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
-
-                print "Performing Watershed segmentation..."
-
-                labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
-
-                print "Performing basic region merging..."
-
-                mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
-
-                print "Performing basic boundary regularization..."
-
-                pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
-
-                print "Creating final mask and saving output raster..."
-
-                finalMask = ma.buildFinalMask(pieces,mergedMask)
-                
-                # time.sleep(10)
-
-                # finalMask = io.imread("C:/bertud_temp/slope.tif")
-                #set the output to the item's final result
-                item.result = finalMask
-                #set the item's worker
-                item.end_time = time.time()
-
-                #KAGEYAMA
-                #return the result to the dispatcher
                 try:
-                    dispatcher.putResult(item, finalMask)
-                    dispatcher.updateWorkerStatus(WORKERID,'1')
+                    print "Preparing Inputs..."
+                    pi.prepareInputs()
+
+                    ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
+                    classified = io.imread("C:\\bertud_temp\\classified.tif")
+                    slope = io.imread("C:\\bertud_temp\\slope.tif")
+                    slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
+
+                    print "Generating Initial Mask..."
+                    veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
+
+                    print "Generating markers for Watershed segmentation..."
+
+                    initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
+
+                    print "Performing Watershed segmentation..."
+
+                    labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
+
+                    print "Performing basic region merging..."
+
+                    mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
+
+                    print "Performing basic boundary regularization..."
+
+                    pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
+
+                    print "Creating final mask and saving output raster..."
+
+                    finalMask = ma.buildFinalMask(pieces,mergedMask)
+                    
+                    # time.sleep(10)
+
+                    # finalMask = io.imread("C:/bertud_temp/slope.tif")
+                    #set the output to the item's final result
+                    item.result = finalMask
+
                 except:
-                    while True:
-                        #Try to reconnect to dispatcher
-                        try:
-                            print("Dispatcher not found. Reconnecting...")
-                            dispatcher._pyroReconnect()
-                        #Can't connect -> Sleep then retry again
-                        except Exception:
-                            time.sleep(1)
-                        #Reconnecting succesful
-                        else:
-                            dispatcher.putResult(item, finalMask)
-                            dispatcher.updateWorkerStatus(WORKERID,'1')
-                            print("Connected to dispatcher.")
-                            break
+                    
+                    e = sys.exc_info()[0]
+                    item.error_msg = e
+                    try:
+                        dispatcher.saveError(item)
+                        dispatcher.updateWorkerStatus(WORKERID,'1')
+                    except:
+                        while True:
+                            #Try to reconnect to dispatcher
+                            try:
+                                print("Dispatcher not found. Reconnecting...")
+                                dispatcher._pyroReconnect()
+                            #Can't connect -> Sleep then retry again
+                            except Exception:
+                                time.sleep(1)
+                            #Reconnecting succesful
+                            else:
+                                dispatcher.saveError(item)
+                                dispatcher.updateWorkerStatus(WORKERID,'1')
+                                print("Connected to dispatcher.")
+                                break
+                                  
+                else:
+
+                    #set the item's worker
+                    item.end_time = time.time()
+
+                    #KAGEYAMA
+                    #return the result to the dispatcher
+                    try:
+                        dispatcher.putResult(item, finalMask)
+                        dispatcher.updateWorkerStatus(WORKERID,'1')
+                    except:
+                        while True:
+                            #Try to reconnect to dispatcher
+                            try:
+                                print("Dispatcher not found. Reconnecting...")
+                                dispatcher._pyroReconnect()
+                            #Can't connect -> Sleep then retry again
+                            except Exception:
+                                time.sleep(1)
+                            #Reconnecting succesful
+                            else:
+                                dispatcher.putResult(item, finalMask)
+                                dispatcher.updateWorkerStatus(WORKERID,'1')
+                                print("Connected to dispatcher.")
+                                break
 
                 # dispatcher.putResult(item)
 
