@@ -82,7 +82,11 @@ $(document).ready(function() {
 		}
 		, 2000);
 
-	
+	$(document).on('click', '#toast-container .toast', function() {
+	    $(this).fadeOut(function(){
+	        $(this).remove();
+	    });
+	});
 });
 	
 function update_pcs(obj,disconnectionThreshold){
@@ -193,7 +197,14 @@ function update_queue(finished,processing,worker_info){
 
 			$("#item"+finished[index].item_id).remove();
 
-			Materialize.toast(workers[finished[index].worker_id]+' finished processing '+fname+"!", 4000,'green lighten-1')
+			if(finished[index].error=="False"){
+				Materialize.toast(workers[finished[index].worker_id]+' finished processing '+fname+"!", 4000,'green lighten-1')
+				
+				}
+			else{
+				Materialize.toast(workers[finished[index].worker_id]+' encountered an error while processing '+fname+"!", 3600000,'red lighten-1')
+				
+			}	
 		}
 	}
 
@@ -393,16 +404,32 @@ $("#view-logs").click(function(event) {
 	})
 	.success(function(resp) {
 
-		htmlString = "<tr><th>Input File</th><th>Output File</th><th>Start Time</th><th>End Time</th></tr>";
+		console.log(resp)
+		console.log("ERROR")
+		console.log(resp.finished)
+		console.log("ERROR")
 
-		for(index in resp){
+		htmlString = "<tr><th>Input File</th><th>Output File</th><th>Start Time</th><th>End Time</th><th>Finished</th></tr>";
 
-			inputFile = resp[index].path;
-			outputFile = resp[index].output_path;
-			startTime = resp[index].start_time;
-			endTime = resp[index].end_time;
+		for(index in resp.error){
 
-			htmlString+="<tr><td>"+inputFile+"</td>"+"<td>"+outputFile+"</td>"+"<td>"+startTime+"</td>"+"<td>"+endTime+"</td></tr>";
+			inputFile = resp.error[index].path;
+			outputFile = resp.error[index].output_path;
+			startTime = resp.error[index].start_time;
+			endTime = resp.error[index].end_time;
+
+			htmlString+="<tr class='red lighten-4'><td>"+inputFile+"</td>"+"<td>"+outputFile+"</td>"+"<td>"+startTime+"</td>"+"<td>"+endTime+"</td><td>No</td></tr>";
+		}
+
+
+		for(index in resp.finished){
+
+			inputFile = resp.finished[index].path;
+			outputFile = resp.finished[index].output_path;
+			startTime = resp.finished[index].start_time;
+			endTime = resp.finished[index].end_time;
+
+			htmlString+="<tr><td>"+inputFile+"</td>"+"<td>"+outputFile+"</td>"+"<td>"+startTime+"</td>"+"<td>"+endTime+"</td><td>Yes</td></tr>";
 		}
 
 

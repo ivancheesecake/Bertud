@@ -252,8 +252,9 @@ def main():
 
                 except:
                     
-                    e = sys.exc_info()[0]
-                    item.error_msg = e
+                    # e = sys.exc_info()[0]
+                    item.error_msg = "Error"
+                    item.end_time = time.time()
                     try:
                         dispatcher.saveError(item)
                         dispatcher.updateWorkerStatus(WORKERID,'1')
@@ -281,7 +282,13 @@ def main():
                     #KAGEYAMA
                     #return the result to the dispatcher
                     try:
-                        dispatcher.putResult(item, finalMask)
+                        with open("C:\\bertud_temp\\dsm.tif","rb") as f_dsm:
+                            dsm = f_dsm.read()
+
+                        with open("C:\\bertud_temp\\ndsm.tif","rb") as f_ndsm:
+                            ndsm = f_ndsm.read()    
+
+                        dispatcher.putResult(item,finalMask,dsm,ndsm)
                         dispatcher.updateWorkerStatus(WORKERID,'1')
                     except:
                         while True:

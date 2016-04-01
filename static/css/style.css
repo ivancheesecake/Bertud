@@ -152,3 +152,10 @@ a .badge{
 	font-family: Roboto;
 }
 
+#toast-container .toast {
+    cursor: pointer!important;
+}
+
+td{
+	border-radius: 0px!important;
+}

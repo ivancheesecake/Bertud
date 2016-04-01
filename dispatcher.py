@@ -86,7 +86,7 @@ class DispatcherQueue(object):
     def saveError(self, item):
         self.Qprocessing.pop(str(item.itemId), None)
         self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id,"error":"True"})
-        self.Qerror[str(item.itemId)] = item
+        self.Qerror[str(item.itemId)] = item.dictify()
 
         #update the error_queue item for backup
         error_q = pickle.load(open("config/error_queue.p", "rb"))
@@ -135,7 +135,7 @@ class DispatcherQueue(object):
             raise ValueError("no items in queue")
 
     #function that receives results from slaves
-    def putResult(self, item, output):
+    def putResult(self, item, output,dsm,ndsm):
         self.Qprocessing.pop(str(item.itemId), None)
         self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id,"error":"False"})
         # Tried dictify()
@@ -158,8 +158,10 @@ class DispatcherQueue(object):
         print item.output_path
         io.imsave(item.output_path,output)
 
-        # with open(item.output_path,"wb") as file:
-        #         file.write(output)
+        with open(item.output_path[:-4]+"_dsm.tif","wb") as file:
+            file.write(dsm)
+        with open(item.output_path[:-4]+"_ndsm.tif","wb") as file:
+            file.write(ndsm) 
 
         # self.resultqueue.put(item)
 

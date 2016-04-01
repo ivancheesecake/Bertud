@@ -197,9 +197,11 @@ def removeFromQueue():
 def getFinished():
 
 	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
-	finished = dispatcher.getResult()
+	finished,error = dispatcher.getResult()
+	print finished
+	print error
 
-	return jsonify(finished)
+	return jsonify({"finished":finished,"error":error})
 
 @app.route('/reports')
 def reports():
