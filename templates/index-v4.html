@@ -224,12 +224,21 @@
 								 </div>
 							</div>
 
-							<div class="card-content">
+							<!-- 
+							PC status panel with space for status updates, use this in the future for better progress tracking.
+							-->
+							<!-- <div class="card-content">
 								<span id='name-pc{{worker["workerID"]}}' class="card-title activator grey-text text-darken-4">{{worker["workerName"]}}<i class="material-icons right card-icon">more_vert</i></span>
 							</div>
 							<div class="card-reveal">
 							<span class="card-title grey-text text-darken-4">Cheesecake-PC<i class="material-icons right ">close</i></span>
 							<p>Functionality coming soon.</p>
+							</div> -->
+
+							<div class="card-content">
+								<span id='name-pc{{worker["workerID"]}}' class="card-title grey-text text-darken-4">{{worker["workerName"]}}
+									<i id="deactivate-pc{{worker['workerID']}}" class="material-icons right card-icon deactivate">more_vert</i>
+							</span>
 							</div>
 						</div>
 					</div>

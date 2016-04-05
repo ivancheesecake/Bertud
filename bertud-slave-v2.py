@@ -301,7 +301,7 @@ def main():
                                 time.sleep(1)
                             #Reconnecting succesful
                             else:
-                                dispatcher.putResult(item, finalMask)
+                                dispatcher.putResult(item, finalMask,dsm,ndsm)
                                 dispatcher.updateWorkerStatus(WORKERID,'1')
                                 print("Connected to dispatcher.")
                                 break
