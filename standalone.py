@@ -7,6 +7,7 @@ import subprocess
 import time
 import psutil
 
+
 def getRecCores(maxCores, itr = 3, timeout = 1):
     ave_cpu = []
     recCores = 2
@@ -36,6 +37,8 @@ def getRecCores(maxCores, itr = 3, timeout = 1):
 
 def main():
 
+	 
+
      print "Preparing Inputs..."
      pi.prepareInputs()
 
@@ -60,8 +63,12 @@ def main():
      mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
 
      print "Performing basic boundary regularization..."
-
-     pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = 6))
+     
+     
+     #if __name__ == '__main__':
+     #	pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = 2))
+     
+     pieces = br.nonParallel(mergedMask)
 
      print "Creating final mask and saving output raster..."
 
