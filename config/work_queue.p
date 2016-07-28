@@ -1,5 +1,4 @@
 (dp0
-<<<<<<< HEAD
 S'3827'
 p1
 ccopy_reg
@@ -309,6 +308,3 @@ p95
 sg16
 g17
 sbs.
-=======
-.
->>>>>>> 91af396acaa824eac3782af25ab9ed2cc231f08e
