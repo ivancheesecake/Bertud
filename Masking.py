@@ -16,6 +16,8 @@ def normalizeRange(img,newMin,newMax):
 	img2 = (img - img.min())*const  + newMin 
 	return img2.astype(np.uint8)
 
+# Using only classification from lastools
+# A little cleaning
 def generateInitialMask(ndsm,classified,slope,ndsmThreshold,slopeThreshold,smallObjectsThresh=60):
 
 	ndsmThresh = ndsm > ndsmThreshold
@@ -31,8 +33,9 @@ def generateInitialMask(ndsm,classified,slope,ndsmThreshold,slopeThreshold,small
 	clean = morphology.opening(level3,morphology.square(3))
 	initialMask,num_labels = ndimage.label(clean)
 
-
 	return level1,initialMask
+
+# Use slope of slope para paghiwalayin ang dapat magkakahiwalay
 
 def generateInitialMarkers(slopeslope,veggieMask,slopeThreshold=84,smallObjectsThresh=30):
 
@@ -49,10 +52,13 @@ def generateInitialMarkers(slopeslope,veggieMask,slopeThreshold=84,smallObjectsT
 
 def watershed(ndsm, initialMask,initialMarkers,veggieMask):
 
+	# remove vegetation from ndsm
+
 	veggieMask2 = morphology.opening(veggieMask,morphology.square(3))
 	# veggieMask3 = morphology.erosion(veggieMask2,morphology.square(2))
 	ndsm[veggieMask2==0] = 0 
 
+	# watershed needs grayscale images
 	ndsmNorm = normalizeRange(ndsm,0,255)
 
 	initialMarkers[initialMask==0]=0

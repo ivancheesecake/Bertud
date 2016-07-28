@@ -44,10 +44,12 @@ $(document).ready(function() {
 			fname = tokens[tokens.length-1];
 			// Currently being processed
 			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
-			htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue'><i class='queue-clear material-icons'>clear</i></a></div></li>"
+			htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+queue[item].path+"'>"+fname+"</span><a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue' ><i class='queue-clear material-icons'>clear</i></a></div></li>"
 			$("#queue-content").append(htmlString);
 			
 		}
+		$('.tooltipped').tooltip('remove');
+		$('.tooltipped').tooltip({delay: 50});
 
 		$(".remove-from-queue").click(function(event){
 			removeFromQueue($(this).data("id"));
@@ -87,6 +89,8 @@ $(document).ready(function() {
 	        $(this).remove();
 	    });
 	});
+
+
 });
 	
 function update_pcs(obj,disconnectionThreshold){
@@ -167,8 +171,14 @@ function update_queue(finished,processing,worker_info){
 			fname = processing[index].path.split("/").pop();
 
 			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
-			htmlString = "<div>"+fname+"<a class='secondary-content'>Sending to "+workers[processing[index].worker_id]+"</a></div>"
-			$("#item"+processing[index].itemId).html(htmlString)
+			// htmlString = "<div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+processing[index].path+"'>"+fname+"</span><a class='secondary-content'>Sending to "+workers[processing[index].worker_id]+"</a></div>"
+			// htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+queue[item].path+"'>"+fname+"</span><a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue' ><i class='queue-clear material-icons'>clear</i></a></div></li>"
+			// htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+queue[item].path+"'>"+fname+"</span><a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue' ><i class='queue-clear material-icons'>clear</i></a></div></li>"
+			htmlString = "Sending to "+workers[processing[index].worker_id];
+
+			$("#item"+processing[index].itemId+">div>a").html(htmlString);
+			$("#item"+processing[index].itemId+">div>a").removeClass('remove-from-queue')
+			$("#item"+processing[index].itemId+">div>a").unbind( "click" );
 		}
 
 		if (worker_info[processing[index].worker_id].status=='2'){
@@ -176,10 +186,16 @@ function update_queue(finished,processing,worker_info){
 			fname = processing[index].path.split("/").pop();
 
 			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
-			htmlString = "<div>"+fname+"<a class='secondary-content'>"+workers[processing[index].worker_id]+"</a></div>"
-			$("#item"+processing[index].itemId).html(htmlString)
+			// htmlString = "<div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+processing[index].path+"'>"+fname+"</span><a class='secondary-content'>"+workers[processing[index].worker_id]+"</a></div>"
+			htmlString = workers[processing[index].worker_id];
+			$("#item"+processing[index].itemId+">div>a").html(htmlString);
+			$("#item"+processing[index].itemId+">div>a").removeClass('remove-from-queue')
+			$("#item"+processing[index].itemId+">div>a").unbind( "click" );
+			
+			
 		}
-		
+
+
 	}
 
 
@@ -372,11 +388,12 @@ function addToQueue(files,inputPath,outputPath){
 			// console.log(fname);
 			// Currently being processed
 			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
-			htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue'><i class='queue-clear material-icons'>clear</i></a></div></li>"
+			htmlString = "<li id='item"+queue[item].itemId+"'class='collection-item'><div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+queue[item].path+"'>"+fname+"</span><a href='#' data-id='"+queue[item].itemId+"'class='secondary-content remove-from-queue' ><i class='queue-clear material-icons'>clear</i></a></div></li>"
 			$("#queue-content").append(htmlString);
 			
 		}
-
+		$('.tooltipped').tooltip('remove');
+		$('.tooltipped').tooltip({delay: 50});
 		$(".remove-from-queue").click(function(event){
 			removeFromQueue($(this).data("id"));
 		});
