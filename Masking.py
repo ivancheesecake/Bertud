@@ -16,35 +16,10 @@ def normalizeRange(img,newMin,newMax):
 	img2 = (img - img.min())*const  + newMin 
 	return img2.astype(np.uint8)
 
-<<<<<<< HEAD
 def generateInitialMask(ndsm,classified,slope,numret):
 
 	print "Preparing Watershed base..."
 	ndsm_gray = normalizeRange(ndsm,0,255)
-=======
-# Using only classification from lastools
-# A little cleaning
-def generateInitialMask(ndsm,classified,slope,ndsmThreshold,slopeThreshold,smallObjectsThresh=60):
-
-	ndsmThresh = ndsm > ndsmThreshold
-	vegetation = classified == 5
-
-	level0 = ~vegetation & ndsmThresh
-	level1 = morphology.remove_small_objects(level0,smallObjectsThresh)
-	
-	slopeThresh = slope > slopeThreshold
-	level2 = level1 & ~slopeThresh
-	level3 = morphology.remove_small_objects(level2,smallObjectsThresh)
-
-	clean = morphology.opening(level3,morphology.square(3))
-	initialMask,num_labels = ndimage.label(clean)
-
-	return level1,initialMask
-
-# Use slope of slope para paghiwalayin ang dapat magkakahiwalay
-
-def generateInitialMarkers(slopeslope,veggieMask,slopeThreshold=84,smallObjectsThresh=30):
->>>>>>> 91af396acaa824eac3782af25ab9ed2cc231f08e
 
 	# Prepare Watershed Base
 
@@ -56,21 +31,10 @@ def generateInitialMarkers(slopeslope,veggieMask,slopeThreshold=84,smallObjectsT
 
 	ndsm_noveg_open = morphology.opening(ndsm_noveg,morphology.square(3))
 
-<<<<<<< HEAD
 	slope_thresh = slope > 60
 
 	edges = copy.deepcopy(ndsm_gray)
 	edges[~slope_thresh] = 0
-=======
-	# remove vegetation from ndsm
-
-	veggieMask2 = morphology.opening(veggieMask,morphology.square(3))
-	# veggieMask3 = morphology.erosion(veggieMask2,morphology.square(2))
-	ndsm[veggieMask2==0] = 0 
-
-	# watershed needs grayscale images
-	ndsmNorm = normalizeRange(ndsm,0,255)
->>>>>>> 91af396acaa824eac3782af25ab9ed2cc231f08e
 
 	wshed_base = copy.deepcopy(ndsm_noveg_open)
 
