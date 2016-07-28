@@ -43,22 +43,29 @@ def prepareInputs():
 
 	# Prepare file_list.txt
 
-	subprocess.call(["lasclassify", "-i", "C:/bertud_temp/ground.laz","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
+	# subprocess.call(["lasclassify", "-i", "C:/bertud_temp/ground.laz","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
+	
+	# Added fine tuning parameter -planar
+	subprocess.call(["lasclassify", "-i", "C:/bertud_temp/ground.laz","-planar","0.15","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
 
-	print "Running LASGrid..."
+	print "Running LASGrid for classification raster..."
 
 	# Prepare file_list.txt
-	subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-classification","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
+	# subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-classification","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
+	
+	# Added fine tuning parameter -subsample 8
+	subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-classification","-subsample","8","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
+
+	print "Running LASGrid for number of returns raster..."
+	subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-number_returns","-lowest","-subsample","8","-odir", "C:/bertud_temp/", "-o","numret.tif"], stdout=subprocess.PIPE)
 
 	print "Running blast2DEM..."
 	
 	subprocess.call(["blast2dem", "-i", "C:/bertud_temp/classified.laz", "-first_only","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dsm.tif"], stdout=subprocess.PIPE)
 	subprocess.call(["blast2dem", "-i", "C:/bertud_temp/classified.laz", "-keep_classification","2","-keep_classification","8","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dtm.tif"], stdout=subprocess.PIPE)
 
-
 	dsm = io.imread("C:/bertud_temp/dsm.tif")
 	dtm = io.imread("C:/bertud_temp/dtm.tif")
-
 
 	# nDSM
 
@@ -66,7 +73,11 @@ def prepareInputs():
 	dsm[dsm<0] = 0
 
 	ndsm = dsm-dtm
-	ndsm[ndsm<2] = 0
+
+	# Revised nDSM generation
+	# ndsm[ndsm<2] = 0
+	ndsm[ndsm<0] = 0
+
 	io.imsave("C:/bertud_temp/ndsm.tif",ndsm)
 	
 	# Slope 

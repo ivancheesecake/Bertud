@@ -16,237 +16,109 @@ def normalizeRange(img,newMin,newMax):
 	img2 = (img - img.min())*const  + newMin 
 	return img2.astype(np.uint8)
 
-def generateInitialMask(ndsm,classified,slope,ndsmThreshold,slopeThreshold,smallObjectsThresh=60):
+def generateInitialMask(ndsm,classified,slope,numret):
 
-	ndsmThresh = ndsm > ndsmThreshold
+	print "Preparing Watershed base..."
+	ndsm_gray = normalizeRange(ndsm,0,255)
+
+	# Prepare Watershed Base
+
+	# Remove Vegetation
+	ndsm_noveg = copy.deepcopy(ndsm_gray)
+	ndsm_noveg[classified==5] = 0
+
+	# Perform Morphology
+
+	ndsm_noveg_open = morphology.opening(ndsm_noveg,morphology.square(3))
+
+	slope_thresh = slope > 60
+
+	edges = copy.deepcopy(ndsm_gray)
+	edges[~slope_thresh] = 0
+
+	wshed_base = copy.deepcopy(ndsm_noveg_open)
+
+	for y in xrange(len(ndsm_noveg_open)):
+		for x in xrange(len(ndsm_noveg_open[0])):
+
+			if slope_thresh[y][x] == True:
+				# print "HERE"
+				wshed_base[y][x] = ndsm_noveg_open[y][x]
+
+	# Prepare Markers
+
+	print "Preparing markers..."
+
+
+	ndsm_thresh = ndsm > 2
+
+	slope_thresh = slope > 30
+	slope_morph = morphology.closing(slope_thresh,morphology.square(4))
+
+	markers_level1 = ndsm_thresh & ~slope_morph
+
 	vegetation = classified == 5
+	markers_level2 = markers_level1 & ~vegetation
 
-	level0 = ~vegetation & ndsmThresh
-	level1 = morphology.remove_small_objects(level0,smallObjectsThresh)
-	
-	slopeThresh = slope > slopeThreshold
-	level2 = level1 & ~slopeThresh
-	level3 = morphology.remove_small_objects(level2,smallObjectsThresh)
+	markers_thresh = markers_level2!=0
+	markers_small_removed = morphology.remove_small_objects(markers_thresh,10)
+	markers_level3,num_labels = ndimage.label(markers_small_removed)
 
-	clean = morphology.opening(level3,morphology.square(3))
-	initialMask,num_labels = ndimage.label(clean)
+	markers_level3[ndsm<1] = -1
+	markers_level3[classified==5] = -1
 
+	# Perform Watershed segmentation
 
-	return level1,initialMask
+	print "Performing region growing..."
 
-def generateInitialMarkers(slopeslope,veggieMask,slopeThreshold=84,smallObjectsThresh=30):
+	wshed = ndimage.watershed_ift(input=wshed_base,markers=markers_level3)
+	wshed[wshed==-1] = 0
 
-	slopeThresh = slopeslope >slopeThreshold
-	slopeThresh2 = morphology.opening(slopeThresh,morphology.square(2))
-	slopeThresh2 = morphology.remove_small_objects(slopeThresh2,smallObjectsThresh)
-	level2 = veggieMask & ~slopeThresh2
-	level3 = morphology.remove_small_objects(level2,smallObjectsThresh)
+	# Remove river artifacts
 
-	clean = morphology.opening(level3,morphology.square(3))
-	initialMarkers,num_labels = ndimage.label(clean)
+	print "Removing river artifacts..."
 
-	return initialMarkers
+	returns = numret > 0
 
-def watershed(ndsm, initialMask,initialMarkers,veggieMask):
+	labels =  list(np.unique(wshed))
+	labels = labels[1:]
 
-	veggieMask2 = morphology.opening(veggieMask,morphology.square(3))
-	# veggieMask3 = morphology.erosion(veggieMask2,morphology.square(2))
-	ndsm[veggieMask2==0] = 0 
+	#1454, 741
+	# labels = [1454]
 
-	ndsmNorm = normalizeRange(ndsm,0,255)
+	area_thresh = 30
 
-	initialMarkers[initialMask==0]=0
+	for label in labels:
 
-	# Look for first 0 pixel, mark with -1 for background
-	for y in xrange(len(ndsm)):
-		for x in xrange(len(ndsm)):
-			if (ndsm[y][x]==0):
-				break
-	initialMarkers[y][x] = -1	
+		print label
+		clone = copy.deepcopy(wshed)
 
-	wshed = ndimage.watershed_ift(input=ndsmNorm, markers=initialMarkers)
-	# wshed[ndsm<3] = 0
-	# wshed[veggieMask==0] = 0
-	# wshed[wshed<0] = 0
+		obj_slice = ndimage.find_objects(clone==label)	
+
+		# print obj_slice
+		obj = clone[obj_slice[0][0],obj_slice[0][1]]
+		obj[obj!=label] = 0
+
+		obj = obj.astype(bool)
+
+		area_orig = np.bincount(obj.flatten())[1]
+
+		if area_orig < area_thresh:
+			wshed[wshed==label] = 0
+
+		returns_slice = returns[obj_slice[0][0],obj_slice[0][1]]
+		intersect = returns_slice & obj
+		intersect = intersect*1
+
+		area_intersect = np.count_nonzero(intersect)
+
+		ratio = float(area_intersect)/float(area_orig)
+
+		if ratio <0.2:
+
+			wshed[wshed==label] = 0
 
 	return wshed
-
-
-def watershed2(ndsm, initialMask,initialMarkers,veggieMask):
-
-	veggieMask2 = morphology.opening(veggieMask,morphology.square(3))
-	# veggieMask3 = morphology.erosion(veggieMask2,morphology.square(2))
-	ndsm[veggieMask2==0] = 0 
-
-	ndsmNorm = normalizeRange(ndsm,0,255)
-
-	initialMarkers[initialMask==0]=0
-
-	# Bigger background markers
-	initialMarkers[ndsm<2] = -1	
-
-	wshed = ndimage.watershed_ift(input=ndsmNorm, markers=initialMarkers)
-	wshed[ndsm<3] = 0
-	wshed[veggieMask==0] = 0
-	wshed[wshed<0] = 0
-
-	return wshed	
-
-def mergeRegionsBasic(labeledMask,mergeThreshold=0.15):
-
-	newMask =copy.deepcopy(labeledMask)
-
-	count = np.bincount(labeledMask.flatten())
-	count = count.tolist()
-	count = filter(lambda a: a != 0, count)
-
-	rag = graph.rag_mean_color(labeledMask,labeledMask)
-
-	nodes= rag.nodes()
-	areas = dict(zip(nodes,count))
-
-	for node in nodes:
-
-		if node==0:
-			continue
-		
-		area = areas[node]
-		neighbors = rag.neighbors(node)
-		
-		# print node,area,neighbors
-
-		# Case 1: Object is totally surrounded by another
-
-		if len(neighbors) == 1 and neighbors!= [0]:
-		
-			if 0 in neighbors:
-				neighbors.remove(0)
-
-			biggestNeighbor = neighbors[0]
-
-			for n in neighbors:
-				if areas[n] > areas[biggestNeighbor]:
-					biggestNeighbor = n
-			# Modify Image
-			newMask[newMask==node] = biggestNeighbor
-			# Modify Area
-			areas[biggestNeighbor] += areas[node]
-
-			# Modify Graph
-			for n in neighbors:
-				rag.add_edge(n,biggestNeighbor)
-			
-			rag.remove_node(node)		
-			continue
-
-		if len(neighbors)>1:
-			
-			# Identify biggest neighbor
-			if 0 in neighbors:
-				neighbors.remove(0)
-
-			biggestNeighbor = neighbors[0]
-
-			for n in neighbors:
-				if areas[n] > areas[biggestNeighbor]:
-					biggestNeighbor = n
-
-			# Modify Image
-			ratio = float(areas[node])/areas[biggestNeighbor]
-			
-			if ratio<mergeThreshold:
-				newMask[newMask==node] = biggestNeighbor
-
-				# Modify Area
-				areas[biggestNeighbor] += areas[node]
-				
-				# Modify Graph
-				for n in neighbors:
-					rag.add_edge(n,biggestNeighbor)
-				rag.remove_node(node)
-			continue
-
-	return newMask
-
-def mergeRegionsBasicV2(labeledMask,mergeThreshold=0.15,iterations=10):
-
-	newMask =copy.deepcopy(labeledMask)
-
-	count = np.bincount(labeledMask.flatten())
-	count = count.tolist()
-	count = filter(lambda a: a != 0, count)
-
-	rag = graph.rag_mean_color(labeledMask,labeledMask)
-
-	nodes= rag.nodes()
-	areas = dict(zip(nodes,count))
-
-
-	for i in xrange(iterations):
-		nodes= rag.nodes()
-
-		for node in nodes:
-
-			if node==0:
-				continue
-			
-			area = areas[node]
-			neighbors = rag.neighbors(node)
-			
-			# print node,area,neighbors
-
-			# Case 1: Object is totally surrounded by another
-
-			if len(neighbors) == 1 and neighbors!= [0]:
-			
-				if 0 in neighbors:
-					neighbors.remove(0)
-
-				biggestNeighbor = neighbors[0]
-
-				for n in neighbors:
-					if areas[n] > areas[biggestNeighbor]:
-						biggestNeighbor = n
-				# Modify Image
-				newMask[newMask==node] = biggestNeighbor
-				# Modify Area
-				areas[biggestNeighbor] += areas[node]
-
-				# Modify Graph
-				for n in neighbors:
-					rag.add_edge(n,biggestNeighbor)
-				
-				rag.remove_node(node)		
-				continue
-
-			if len(neighbors)>1 and 0 not in neighbors:
-				
-				# Identify biggest neighbor
-				if 0 in neighbors:
-					neighbors.remove(0)
-
-				biggestNeighbor = neighbors[0]
-
-				for n in neighbors:
-					if areas[n] > areas[biggestNeighbor]:
-						biggestNeighbor = n
-
-				# Modify Image
-				# ratio = float(areas[node])/areas[biggestNeighbor]
-				
-				# if ratio<mergeThreshold:
-				newMask[newMask==node] = biggestNeighbor
-
-				# Modify Area
-				areas[biggestNeighbor] += areas[node]
-				
-				# Modify Graph
-				for n in neighbors:
-					rag.add_edge(n,biggestNeighbor)
-				rag.remove_node(node)
-				continue
-
-	return newMask
 
 def buildFinalMask(results,labeledMask,circle_radius=5):
 

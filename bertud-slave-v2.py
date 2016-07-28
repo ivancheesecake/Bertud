@@ -10,7 +10,7 @@ import BoundaryRegularizationV2 as br
 import time
 import wx
 import json
-from skimage import io
+from skimage import io,external
 import subprocess
 import atexit
 import psutil
@@ -218,37 +218,16 @@ def main():
 
                     ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
                     classified = io.imread("C:\\bertud_temp\\classified.tif")
+                    classified = classified[0:len(ndsm),0:len(ndsm[0])]
                     slope = io.imread("C:\\bertud_temp\\slope.tif")
-                    slopeslope = io.imread("C:\\bertud_temp\\slopeslope.tif")
+                    numret = io.imread("C:\\bertud_temp\\numret.tif")
+
 
                     print "Generating Initial Mask..."
-                    veggieMask,initialMask = ma.generateInitialMask(ndsm,classified,slope,ndsmThreshold=3,slopeThreshold=60)
+                    initialMask = ma.generateInitialMask(ndsm,classified,slope,numret)
 
-                    print "Generating markers for Watershed segmentation..."
+                    # external.tifffile.imsave("initialMask.tif",initialMask)
 
-                    initialMarkers = ma.generateInitialMarkers(slopeslope,veggieMask)
-
-                    print "Performing Watershed segmentation..."
-
-                    labeledMask = ma.watershed2(ndsm,initialMask,initialMarkers,veggieMask)
-
-                    print "Performing basic region merging..."
-
-                    mergedMask = ma.mergeRegionsBasicV2(labeledMask,mergeThreshold=0.10,iterations=10)
-
-                    print "Performing basic boundary regularization..."
-
-                    pieces = br.performBoundaryRegularizationV2(mergedMask,numProcesses=getRecCores(maxCores = recommendedCores))
-
-                    print "Creating final mask and saving output raster..."
-
-                    finalMask = ma.buildFinalMask(pieces,mergedMask)
-                    
-                    # time.sleep(10)
-
-                    # finalMask = io.imread("C:/bertud_temp/slope.tif")
-                    #set the output to the item's final result
-                    item.result = finalMask
 
                 except:
                     
@@ -277,6 +256,17 @@ def main():
                 else:
 
                     #set the item's worker
+
+                    print "Performing basic boundary regularization..."
+
+                    pieces = br.performBoundaryRegularizationV2(initialMask,numProcesses=getRecCores(maxCores = recommendedCores))
+
+                    finalMask = ma.buildFinalMask(pieces,initialMask)
+                    external.tifffile.imsave("finalmask.tif",finalMask)
+
+            
+                    item.result = finalMask
+
                     item.end_time = time.time()
 
                     #KAGEYAMA
