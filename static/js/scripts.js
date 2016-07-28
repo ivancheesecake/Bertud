@@ -177,10 +177,15 @@ function update_queue(finished,processing,worker_info){
 			htmlString = "Sending to "+workers[processing[index].worker_id];
 
 			$("#item"+processing[index].itemId+">div>a").html(htmlString);
+<<<<<<< HEAD
 			$("#item"+processing[index].itemId+">div>a").removeClass('remove-from-queue');
 			$("#item"+processing[index].itemId+">div>a").unbind( "click" );
 
 
+=======
+			$("#item"+processing[index].itemId+">div>a").removeClass('remove-from-queue')
+			$("#item"+processing[index].itemId+">div>a").unbind( "click" );
+>>>>>>> 91af396acaa824eac3782af25ab9ed2cc231f08e
 		}
 
 		if (worker_info[processing[index].worker_id].status=='2'){
@@ -189,6 +194,7 @@ function update_queue(finished,processing,worker_info){
 
 			// htmlString = "<li id='"+queue[item].itemId+"'class='collection-item'><div>"+fname+"<a class='secondary-content'>Cheesecake-PC</a></div></li>"
 			// htmlString = "<div><span class='tooltipped' data-position='right' data-delay='50' data-tooltip='"+processing[index].path+"'>"+fname+"</span><a class='secondary-content'>"+workers[processing[index].worker_id]+"</a></div>"
+<<<<<<< HEAD
 			// htmlString = workers[processing[index].worker_id]+" <i class='material-icons'>cached</i>";
 			htmlString = workers[processing[index].worker_id];
 			$("#item"+processing[index].itemId+">div>a").html(htmlString);
@@ -196,6 +202,13 @@ function update_queue(finished,processing,worker_info){
 			$("#item"+processing[index].itemId+">div>a").unbind( "click" );
 
 			// $("#item"+processing[index].itemId+">div>a").unbind( "click" );
+=======
+			htmlString = workers[processing[index].worker_id];
+			$("#item"+processing[index].itemId+">div>a").html(htmlString);
+			$("#item"+processing[index].itemId+">div>a").removeClass('remove-from-queue')
+			$("#item"+processing[index].itemId+">div>a").unbind( "click" );
+			
+>>>>>>> 91af396acaa824eac3782af25ab9ed2cc231f08e
 			
 		}
 
