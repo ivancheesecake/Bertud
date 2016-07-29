@@ -2,7 +2,7 @@
 
 from skimage import io
 import Masking as ma
-import BoundaryRegularizationV2 as br
+import BoundaryRegularizationV3 as br
 import PrepareInputs as pi
 import pickle
 import time
@@ -26,7 +26,7 @@ def main():
 	io.imsave("C:\\bertud_temp\\initialMask.tif",initialMask)
 
 
-	pieces = br.performBoundaryRegularizationV2(initialMask,numProcesses=7)
+	pieces = br.performBoundaryRegularizationV2(initialMask,numProcesses=3)
 
 	finalMask = ma.buildFinalMask(pieces,initialMask)
 

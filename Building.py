@@ -9,11 +9,12 @@ from skimage.morphology import opening, square
 import networkx as nx
 import math
 import random
+from scipy.interpolate import interp1d
 
 
 class Building(object):
 
-	def __init__(self, initial_footprint, footprint_index, footprint_slice, FXN_min_e, FXN_angle_cost):
+	def __init__(self, initial_footprint, footprint_index, footprint_slice):
 		self.FOOTPRINT_index_num = footprint_index
 		self.FOOTPRINT_initial = initial_footprint
 		self.FOOTPRINT_slice = footprint_slice
@@ -25,8 +26,8 @@ class Building(object):
 		self.POINTS_critical = None
 		self.POINTS_SA_adjusted = None
 		self.POINTS_final = None
-		self.FXN_min_e = FXN_min_e
-		self.FXN_angle_cost = FXN_angle_cost
+		# self.FXN_min_e = FXN_min_e
+		# self.FXN_angle_cost = FXN_angle_cost
 		self.processing_time = None
 
 	def clean_footprint(self, OPENING_THRESH = 5):
@@ -114,7 +115,12 @@ class Building(object):
 		elif obj_area > TRAINING_MAX_AREA:
 			obj_area = TRAINING_MAX_AREA
 
-		MIN_E_DISTANCE = self.FXN_min_e(obj_area)
+		lin_area = [60,86,113,137,140,146,152,155,158,176,183,187,191,194,198,202,209,221,231,240,247,254,265,280,289,290,293,294,299,307,317,332,344,369,386,398,415,424,446,256,472,485,517,532,571,590,611,634,671,689,713,722,755,781,796,893,938,970,1004,1050,1050,1107,1114,1153,1164,1226,1518,1598,1762,1830,1875,1985,2045,2212,2574,2829,2895,3038,3610,4299,5088,5261,5312,5961,10616,12586,20576]
+		lin_min_e = [0.4,0.4,0.4,0.4,0.6,0.4,0.425,0.5,0.425,0.4,0.475,0.5,0.475,0.475,0.5,0.6,0.625,0.7,0.6,0.6,0.6,0.725,0.725,0.7,0.7,0.7,0.6,0.6,0.7,0.7,0.75,0.75,0.75,0.775,0.76,0.75,0.8,0.775,0.7,0.725,0.725,0.8,0.83,0.805,0.82,0.8,0.85,0.85,0.9,0.87,0.9,0.9,0.9,0.92,1.0,1.0,1.0,0.95,1.0,0.9,0.95,1.0,1.0,1.0,1.0,1.0,0.9,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]
+	
+		FXN_min_e = interp1d(lin_area, lin_min_e)
+
+		MIN_E_DISTANCE = FXN_min_e(obj_area)
 
 		G=nx.DiGraph()
 		E=nx.DiGraph()
@@ -361,13 +367,13 @@ class Building(object):
 
 		return np.array(masks, dtype=dtype)
 
-	def simulated_annealing_solution_cost(self, angles, distances, temperature):
+	def simulated_annealing_solution_cost(self, angles, distances, temperature, cost_spline):
 
 		cost_angles = 0.0
 		cost_distances = 0.0
 
 		for idx, angle in enumerate(angles):
-			cost_angles += math.log10(self.FXN_angle_cost(angle))
+			cost_angles += math.log10(cost_spline(angle))
 			cost_distances += distances[idx] ** 2.0
 
 		return (cost_angles) + ((1.0 / (2.0 * (temperature ** 2.0))) * cost_distances)
@@ -404,11 +410,17 @@ class Building(object):
 		neighbors_distances = neighbors[neighbors["temp"] == MAX_DIST]["dist"][0]
 		neighbors_locations = neighbors[neighbors["temp"] == MAX_DIST]["mask"][0]
 
+		angle_x = [0,20,45,75,90,105,120,135,150,165,180]
+		penalty_y = [1.1,1.0,0.6,0.7,0.1,0.7,0.6,0.5,0.6,0.5,0.1]
+
+		FXN_angle_cost = interp1d(angle_x, penalty_y, kind='cubic')
+
+
 		while temp <= MAX_TEMP:
 
 			#?
-			accepted_solution["cost"] = self.simulated_annealing_solution_cost(accepted_solution["angles"], accepted_solution["distances"], GAUSS_MULTIPLIER)
-			best_solution["cost"] = self.simulated_annealing_solution_cost(best_solution["angles"], best_solution["distances"], GAUSS_MULTIPLIER)
+			accepted_solution["cost"] = self.simulated_annealing_solution_cost(accepted_solution["angles"], accepted_solution["distances"], GAUSS_MULTIPLIER, FXN_angle_cost)
+			best_solution["cost"] = self.simulated_annealing_solution_cost(best_solution["angles"], best_solution["distances"], GAUSS_MULTIPLIER, FXN_angle_cost)
 
 			for idx in xrange(0, ITR_PER_TEMP):
 
@@ -442,7 +454,7 @@ class Building(object):
 					for idx3, point in enumerate(new_solution["footprint"]):
 						new_solution["angles"][idx3] = self.get_angle(point, idx3, new_solution["footprint"])
 
-					new_solution["cost"] = self.simulated_annealing_solution_cost(new_solution["angles"], new_solution["distances"], GAUSS_MULTIPLIER)
+					new_solution["cost"] = self.simulated_annealing_solution_cost(new_solution["angles"], new_solution["distances"], GAUSS_MULTIPLIER, FXN_angle_cost)
 					ap = self.simulated_annealing_acceptance_probability(accepted_solution["cost"], new_solution["cost"], temp)
 
 					#if acceptance probability > random number, accept the solution
@@ -453,7 +465,7 @@ class Building(object):
 				for idx2, point in enumerate(prospect_solution["footprint"]):
 					prospect_solution["angles"][idx2] = self.get_angle(point, idx2, prospect_solution["footprint"])
 
-				prospect_solution["cost"] = self.simulated_annealing_solution_cost(prospect_solution["angles"], prospect_solution["distances"], GAUSS_MULTIPLIER)
+				prospect_solution["cost"] = self.simulated_annealing_solution_cost(prospect_solution["angles"], prospect_solution["distances"], GAUSS_MULTIPLIER, FXN_angle_cost)
 				ap = self.simulated_annealing_acceptance_probability(accepted_solution["cost"], prospect_solution["cost"], temp)
 				
 				if ap > random.random():
