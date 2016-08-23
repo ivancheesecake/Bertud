@@ -16,18 +16,51 @@ import pickle
 from skimage import io
 import time
 import json
+import logging.config
 
 Pyro4.config.SERIALIZER = "pickle"
 
 ip = sys.argv[1]
+nameServer = sys.argv[2]
+# print "POTOTOTOTOTOTOTOTOTOTOTOTOOTT"
+# print nameServer
 
 # For 'workitem.Workitem' we register a deserialization hook to be able to get these back from Pyro
 SerializerBase.register_dict_to_class("workitem.Workitem", Workitem.from_dict)
+
+def setup_logging(
+    default_path='config/logging_config.json', 
+    default_level=logging.INFO,
+    env_key='LOG_CFG'
+):
+    """Setup logging configuration
+
+    """
+    path = default_path
+    value = os.getenv(env_key, None)
+    if value:
+        path = value
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            config = json.load(f)
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
 
 # global work_q 
 class DispatcherQueue(object):
     
     def __init__(self):
+
+
+        # Read session number from file
+        with open("config/session.json","r") as f:
+            self.session = int(json.loads(f.read())["session"])
+
+        # Update session
+        with open("config/session.json","w") as f:   
+            f.write(json.dumps({"session":str(self.session + 1)}))
+
         # self.Qwaiting = queue.Queue()
         self.Qwaiting = {}
 
@@ -41,6 +74,7 @@ class DispatcherQueue(object):
         self.Qprocessing = {}
         self.Qfinished = {}
         self.RemoveIDs = []
+        self.loggers = []
         # self.workqueue = queue.Queue()
         # self.resultqueue = queue.Queue()
         # 
@@ -53,12 +87,50 @@ class DispatcherQueue(object):
 
         workers = json.loads(workersfile)
 
+        setup_logging()
+
         for worker in workers:
-            self.worker_info[str(worker["workerID"])] = {'cpu':-1,'ram':-1,'status':"0"}
+            temp_worker_id = str(worker["workerID"])
+            self.worker_info[temp_worker_id] = {'cpu':-1,'ram':-1,'status':"0"}
+            self.loggers.append(logging.getLogger("worker_" + temp_worker_id))
 
     # def initializeWorkers(self,workers):
     #     for worker in workers:
     #         self.worker_info[str(worker["workerID"])] = {'cpu':-1,'ram':-1,'status':"0"}
+
+    def saveLogs(self, worker_id, msg):
+        worker_id = int(worker_id)
+        session_str = "SESSION#" + str(self.session) + " - "
+        for level, log_msg in msg:
+            full_msg = session_str + log_msg
+            if level == "INFO":
+                self.loggers[worker_id].info(full_msg)
+            elif level == "ERROR":
+                self.loggers[worker_id].error(full_msg)
+            elif level == "WARNING":
+                self.loggers[worker_id].warning(full_msg)
+            elif level == "CRITICAL":
+                self.loggers[worker_id].critical(full_msg)
+            elif level == "DEBUG":
+                self.loggers[worker_id].debug(full_msg)
+
+
+        # try:
+        #     worker_id = int(worker_id)
+        #     session_str = "SESSION#" + str(self.session) + " - "
+        #     full_msg = session_str + msg
+        #     if level == "INFO":
+        #         self.loggers[worker_id].info(full_msg)
+        #     elif level == "ERROR":
+        #         self.loggers[worker_id].error(full_msg)
+        #     elif level == "WARNING":
+        #         self.loggers[worker_id].warning(full_msg)
+        #     elif level == "CRITICAL":
+        #         self.loggers[worker_id].critical(full_msg)
+        #     elif level == "DEBUG":
+        #         self.loggers[worker_id].debug(full_msg)
+        # except:
+        #     print sys.exc_info()
 
     #function that receives work from client
     def putWork(self, item):
@@ -83,7 +155,10 @@ class DispatcherQueue(object):
         pickle.dump(work_q, open("config/work_queue.p", "wb"))
         return removed.dictify()
 
-    def saveError(self, item):
+    def saveError(self, item, error_msg):
+
+        self.saveLogs(item.worker_id, [("ERROR", error_msg)])
+
         self.Qprocessing.pop(str(item.itemId), None)
         self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id,"error":"True"})
         self.Qerror[str(item.itemId)] = item.dictify()
@@ -97,6 +172,7 @@ class DispatcherQueue(object):
         work_q = pickle.load(open("config/work_queue.p", "rb"))
         work_q.pop(str(item.itemId), None)
         pickle.dump(work_q, open("config/work_queue.p", "wb"))
+
 
 
     #slaves use this to check for available works
@@ -126,7 +202,7 @@ class DispatcherQueue(object):
             item = self.Qwaiting.pop(next)
             item.worker_id = worker_ID                  #set worker id to item
             self.Qprocessing[str(item.itemId)] = item.dictify()   #add item to the queue for currently processing
-
+            self.saveLogs(worker_ID, [("INFO", "START PROCESSING LAZ FILE - " + str(item.path))])
             # #read the input file and return them to worker
             with open(item.path, "rb") as file:
 
@@ -136,6 +212,10 @@ class DispatcherQueue(object):
 
     #function that receives results from slaves
     def putResult(self, item, output,dsm,ndsm):
+
+        self.saveLogs(item.worker_id, [("INFO", "FINISHED PROCESSING LAZ FILE - " + str(item.path))])
+
+        self.saveLogs(item.worker_id, [("INFO", "")])
         self.Qprocessing.pop(str(item.itemId), None)
         self.RemoveIDs.append({"item_id":int(item.itemId),"path":item.path,"worker_id":item.worker_id,"error":"False"})
         # Tried dictify()
@@ -220,6 +300,6 @@ class DispatcherQueue(object):
 #Starts the dispatcher server
 Pyro4.Daemon.serveSimple(
     {
-        DispatcherQueue(): "bertud.dispatcher"
+        DispatcherQueue(): nameServer
     },
     ns=True, verbose=True, host=ip)

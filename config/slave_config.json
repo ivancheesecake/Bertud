@@ -1,7 +1,10 @@
 {
-	"dispatcherIP":"10.0.63.142",
+	"dispatcherIP":"10.0.63.32",
+	"dispatcherNameServer":"bertud.dispatcher1",
 	"workerID":"0", 
-	"tempFolder":"C:\\bertud_temp",
-	"maxAllowableCore":"6",
+	"tempFolder":"C:/bertud_temp",
+	"buildingPickleFolder":"C:\\bertud_buildings",
+	"lastoolsPath":"C:/lastools/bin/",
+	"maxAllowableCore":"2",
 	"pythonPath":"C:\\Python27\\ArcGIS10.2\\python.exe"
 }

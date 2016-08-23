@@ -1,0 +1,197 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout"
+        },
+
+        "worker_0_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_0.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_1_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_1.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_2_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_2.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_3_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_3.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_4_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_4.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_5_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_5.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_6_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_6.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_7_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_7.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_8_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_8.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "worker_9_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/worker_9.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "error_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "ERROR",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/errors.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        },
+
+        "warning_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "WARNING",
+            "formatter": "simple",
+            "filename": "C:/bertud_logs/warnings.log",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf8"
+        }
+
+    },
+
+    "loggers": {
+        "worker_0": {
+            "level": "INFO",
+            "handlers": ["worker_0_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_1": {
+            "level": "INFO",
+            "handlers": ["worker_1_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_2": {
+            "level": "INFO",
+            "handlers": ["worker_2_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_3": {
+            "level": "INFO",
+            "handlers": ["worker_3_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_4": {
+            "level": "INFO",
+            "handlers": ["worker_4_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_5": {
+            "level": "INFO",
+            "handlers": ["worker_5_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_6": {
+            "level": "INFO",
+            "handlers": ["worker_6_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_7": {
+            "level": "INFO",
+            "handlers": ["worker_7_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_8": {
+            "level": "INFO",
+            "handlers": ["worker_8_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        },
+        "worker_9": {
+            "level": "INFO",
+            "handlers": ["worker_9_file_handler", "error_file_handler", "warning_file_handler"],
+            "propagate": "no"
+        }
+    },
+
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"]
+    }
+}

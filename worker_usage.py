@@ -29,7 +29,7 @@ def main():
 
 	config = json.loads(configfile)
 
-	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["dispatcherIP"])
+	dispatcher = Pyro4.core.Proxy("PYRONAME:"+config["dispatcherNameServer"]+"@"+config["dispatcherIP"])
 
 	#Iterativly update the worker's cpu and ram usage to the dispatcher
 	while True:

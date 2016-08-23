@@ -63,7 +63,7 @@ def index():
 
 	# Initialize nameserver and dispatcher    	
 	subprocess.Popen([pythonPath+"/Scripts/pyro4-ns","--host",ip])
-	subprocess.Popen([pythonPath+"python","dispatcher.py",ip])
+	subprocess.Popen([pythonPath+"python","dispatcher.py",ip, defaultNameServer])
 	
 	# Redirect to dashboard	
 	return redirect(url_for('dashboard'))
@@ -85,9 +85,9 @@ def dashboard():
 # Called in n-second intervals by the dashboard page
 @app.route('/status')
 def status():
-
+	# print "HOYOHOHOHOHOY", defaultNameServer
 	# Get a reference to the dispatcher
-	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	dispatcher = Pyro4.core.Proxy("PYRONAME:"+defaultNameServer+"@"+ip) 
 	
 	# Fetch updates
 	worker_info,finished,processing = dispatcher.getUpdates()
@@ -154,7 +154,7 @@ def addToQueue():
 		current_id = int(json.loads(f.read())["id"])
 
 	# Get reference to the dispatcher	
-	with Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) as dispatcher:
+	with Pyro4.core.Proxy("PYRONAME:"+defaultNameServer+"@"+ip) as dispatcher:
 		# Prepare the items and add to queue
 		for path,pathShort in zip(filePaths,filesShort):
 			current_id+=1
@@ -186,7 +186,7 @@ def addToQueue():
 def removeFromQueue():
 
 	removeID = request.form.get("removeID")
-	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	dispatcher = Pyro4.core.Proxy("PYRONAME:"+defaultNameServer+"@"+ip) 
 	
 	removed = dispatcher.removeWork(removeID)		
 
@@ -196,7 +196,7 @@ def removeFromQueue():
 @app.route('/getFinished', methods=['POST'])
 def getFinished():
 
-	dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+ip) 
+	dispatcher = Pyro4.core.Proxy("PYRONAME:"+defaultNameServer+"@"+ip) 
 	finished,error = dispatcher.getResult()
 	print finished
 	print error
@@ -232,7 +232,12 @@ if __name__ == '__main__':
 	pythonPath= config["pythonPath"]
 	defaultInputFolder = config["defaultInputFolder"]
 	defaultOutputFolder = config["defaultOutputFolder"]
+	defaultLogsFolder = config["defaultLogsFolder"]
+	defaultNameServer = config["dispatcherNameServer"]
 
+	if not os.path.exists(defaultLogsFolder):
+		os.makedirs(defaultLogsFolder)
+	
 	defaultFolders = defaultInputFolder,defaultOutputFolder
 
 	app.run(debug=True,host='0.0.0.0')

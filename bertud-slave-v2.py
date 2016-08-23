@@ -6,7 +6,7 @@ from Pyro4.util import SerializerBase
 from workitem import Workitem
 import Masking as ma
 import PrepareInputs as pi
-import BoundaryRegularizationV2 as br
+import BoundaryRegularizationV3 as br
 import time
 import wx
 import json
@@ -72,6 +72,10 @@ def exit_handler():
     process.kill()
 
 def getRecCores(maxCores, itr = 3, timeout = 1):
+
+    if maxCores == 8:
+        return maxCores
+
     ave_cpu = []
     recCores = 2
 
@@ -98,6 +102,25 @@ def getRecCores(maxCores, itr = 3, timeout = 1):
     else:
         return recCores
 
+def sendLogs(dispatcher, taskbar, worker_id, msg):
+    try:
+        dispatcher.saveLogs(worker_id, msg)
+    except:
+        taskbar.set_icon(TRAY_ICON_GRAY)
+        while True:
+            #Try to reconnect to dispatcher
+            try:
+                print("Dispatcher not found. Reconnecting...")
+                dispatcher._pyroReconnect()
+            #Can't connect -> Sleep then retry again
+            except Exception:
+                time.sleep(1)
+            #Reconnecting succesful
+            else:
+                taskbar.set_icon(TRAY_ICON_RED)
+                dispatcher.saveLogs(worker_id, msg)
+                print("Connected to dispatcher.")
+                break
 
 def main():
     #instantiate application
@@ -108,6 +131,9 @@ def main():
 
     if not os.path.exists(config["tempFolder"]):
         os.makedirs(config["tempFolder"])    
+
+    if not os.path.exists(config["buildingPickleFolder"]):
+        os.makedirs(config["buildingPickleFolder"]) 
 
     recommendedCores = int(config["maxAllowableCore"])
 
@@ -125,9 +151,9 @@ def main():
     taskbar = BertudTaskBarIcon()
 
     # print("This is worker %s" % WORKERNAME)
-
+    # print "TESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSST",config["dispatcherNameServer"]
     #make connection to dispatcher server
-    dispatcher = Pyro4.core.Proxy("PYRONAME:bertud.dispatcher@"+config["dispatcherIP"])
+    dispatcher = Pyro4.core.Proxy("PYRONAME:"+config["dispatcherNameServer"]+"@"+config["dispatcherIP"])
     gotItem = False
     #Loop for getting work
     while True:
@@ -141,6 +167,7 @@ def main():
 
                 item, laz = dispatcher.getWork(WORKERID)
                 gotItem = True
+                print "GOT ITEM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             else:
                 print "EXTREEEEEEME!"
                 gotItem = False
@@ -151,6 +178,7 @@ def main():
             dispatcher.updateWorkerStatus(WORKERID,'1')
         #No connection to dispatcher
         except:
+            print "PUMASOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             #Set the taskbar's icon to gray - means no connection
             taskbar.set_icon(TRAY_ICON_GRAY)
             #Loop for reconnecting to dispatcher
@@ -208,34 +236,42 @@ def main():
                         print e
 
 
-                with open(config["tempFolder"]+"\\pointcloud.laz", "wb") as file:
+                with open(config["tempFolder"]+"/pointcloud.laz", "wb") as file:
                     file.write(laz)
 
                 #Process the data
                 try:
+                    t0 = time.time()
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "STARTED Preparing Inputs")])
+
                     print "Preparing Inputs..."
-                    pi.prepareInputs()
+                    pi.prepareInputs(config["tempFolder"],config["lastoolsPath"])
 
-                    ndsm = io.imread("C:\\bertud_temp\\ndsm.tif")
-                    classified = io.imread("C:\\bertud_temp\\classified.tif")
+                    ndsm = io.imread(config["tempFolder"] + "/ndsm.tif")
+                    classified = io.imread(config["tempFolder"] + "/classified.tif")
                     classified = classified[0:len(ndsm),0:len(ndsm[0])]
-                    slope = io.imread("C:\\bertud_temp\\slope.tif")
-                    numret = io.imread("C:\\bertud_temp\\numret.tif")
+                    slope = io.imread(config["tempFolder"] + "/slope.tif")
+                    numret = io.imread(config["tempFolder"] + "/numret.tif")
 
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "FINISHED Preparing Inputs - " + str(round(time.time()-t0,2)))])
+
+                    t0 = time.time()
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "STARTED Generating Initial Mask")])
 
                     print "Generating Initial Mask..."
                     initialMask = ma.generateInitialMask(ndsm,classified,slope,numret)
 
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "FINISHED Generating Initial Mask - " + str(round(time.time()-t0,2)))])
                     # external.tifffile.imsave("initialMask.tif",initialMask)
 
 
                 except:
-                    
-                    # e = sys.exc_info()[0]
-                    item.error_msg = "Error"
+                    e = sys.exc_info()[0]
+                    error_msg = "Preparing Inputs / Generating Initial Mask - %s" % e
+                    item.error_msg = error_msg
                     item.end_time = time.time()
                     try:
-                        dispatcher.saveError(item)
+                        dispatcher.saveError(item, error_msg)
                         dispatcher.updateWorkerStatus(WORKERID,'1')
                     except:
                         while True:
@@ -248,7 +284,7 @@ def main():
                                 time.sleep(1)
                             #Reconnecting succesful
                             else:
-                                dispatcher.saveError(item)
+                                dispatcher.saveError(item, error_msg)
                                 dispatcher.updateWorkerStatus(WORKERID,'1')
                                 print("Connected to dispatcher.")
                                 break
@@ -256,12 +292,26 @@ def main():
                 else:
 
                     #set the item's worker
+                    t0 = time.time()
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "STARTED Building Regularization")])
 
                     print "Performing basic boundary regularization..."
 
-                    pieces = br.performBoundaryRegularizationV2(initialMask,numProcesses=getRecCores(maxCores = recommendedCores))
+                    pieces, pbr_logs = br.performBoundaryRegularizationV2(initialMask, item.path, config["buildingPickleFolder"], numProcesses=getRecCores(maxCores = recommendedCores))
+
+                    if len(pbr_logs) > 0:
+                        # pbr_logs.append(("ERROR", ""))
+                        sendLogs(dispatcher, taskbar, WORKERID, pbr_logs)
+
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "FINISHED Building Regularization - " + str(round(time.time()-t0,2)))])
+
+                    t0 = time.time()
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "STARTED Building Final Mask")])
 
                     finalMask = ma.buildFinalMask(pieces,initialMask)
+
+                    sendLogs(dispatcher, taskbar, WORKERID, [("INFO", "FINISHED Building Final Mask - " + str(round(time.time()-t0,2)))])
+
                     external.tifffile.imsave("finalmask.tif",finalMask)
 
             
@@ -272,10 +322,10 @@ def main():
                     #KAGEYAMA
                     #return the result to the dispatcher
                     try:
-                        with open("C:\\bertud_temp\\dsm.tif","rb") as f_dsm:
+                        with open(config["tempFolder"] + "/dsm.tif","rb") as f_dsm:
                             dsm = f_dsm.read()
 
-                        with open("C:\\bertud_temp\\ndsm.tif","rb") as f_ndsm:
+                        with open(config["tempFolder"] + "/ndsm.tif","rb") as f_ndsm:
                             ndsm = f_ndsm.read()    
 
                         dispatcher.putResult(item,finalMask,dsm,ndsm)

@@ -27,9 +27,9 @@ def slopeFilter(x):
 	return slope_degrees
 
 
-def prepareInputs():
+def prepareInputs(temp_folder, lastoolsPath):
 
-	lastoolsPath = "C:/lastools/bin/"
+	# lastoolsPath = "C:/lastools/bin/"
 
 	# Run lasground
 	# Note: Nasa laszip dapat
@@ -37,7 +37,7 @@ def prepareInputs():
 
 	print "Running LASground..."
 
-	subprocess.call(["lasground_new", "-i", "C:/bertud_temp/pointcloud.laz","-metro", "-compute_height","-odir", "C:/bertud_temp/", "-o","ground.laz"], stdout=subprocess.PIPE)
+	subprocess.call(["lasground_new", "-i", temp_folder + "/pointcloud.laz","-metro", "-compute_height","-odir", temp_folder + "/", "-o","ground.laz"], stdout=subprocess.PIPE)
 
 	print "Running LASClassify..."
 
@@ -46,7 +46,7 @@ def prepareInputs():
 	# subprocess.call(["lasclassify", "-i", "C:/bertud_temp/ground.laz","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
 	
 	# Added fine tuning parameter -planar
-	subprocess.call(["lasclassify", "-i", "C:/bertud_temp/ground.laz","-planar","0.15","-odir", "C:/bertud_temp/", "-o","classified.laz"], stdout=subprocess.PIPE)
+	subprocess.call(["lasclassify", "-i", temp_folder + "/ground.laz","-planar","0.15","-odir", temp_folder + "/", "-o","classified.laz"], stdout=subprocess.PIPE)
 
 	print "Running LASGrid for classification raster..."
 
@@ -54,18 +54,18 @@ def prepareInputs():
 	# subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-classification","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
 	
 	# Added fine tuning parameter -subsample 8
-	subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-classification","-subsample","8","-odir", "C:/bertud_temp/", "-o","classified.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["lasgrid", "-i", temp_folder + "/classified.laz","-step","0.5","-classification","-subsample","8","-odir", temp_folder + "/", "-o","classified.tif"], stdout=subprocess.PIPE)
 
 	print "Running LASGrid for number of returns raster..."
-	subprocess.call(["lasgrid", "-i", "C:/bertud_temp/classified.laz","-step","0.5","-number_returns","-lowest","-subsample","8","-odir", "C:/bertud_temp/", "-o","numret.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["lasgrid", "-i", temp_folder + "/classified.laz","-step","0.5","-number_returns","-lowest","-subsample","8","-odir", temp_folder + "/", "-o","numret.tif"], stdout=subprocess.PIPE)
 
 	print "Running blast2DEM..."
 	
-	subprocess.call(["blast2dem", "-i", "C:/bertud_temp/classified.laz", "-first_only","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dsm.tif"], stdout=subprocess.PIPE)
-	subprocess.call(["blast2dem", "-i", "C:/bertud_temp/classified.laz", "-keep_classification","2","-keep_classification","8","-step","0.5","-elevation","-odir", "C:/bertud_temp/", "-o","dtm.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["blast2dem", "-i", temp_folder + "/classified.laz", "-first_only","-step","0.5","-elevation","-odir", temp_folder + "/", "-o","dsm.tif"], stdout=subprocess.PIPE)
+	subprocess.call(["blast2dem", "-i", temp_folder + "/classified.laz", "-keep_classification","2","-keep_classification","8","-step","0.5","-elevation","-odir", temp_folder + "/", "-o","dtm.tif"], stdout=subprocess.PIPE)
 
-	dsm = io.imread("C:/bertud_temp/dsm.tif")
-	dtm = io.imread("C:/bertud_temp/dtm.tif")
+	dsm = io.imread(temp_folder + "/dsm.tif")
+	dtm = io.imread(temp_folder + "/dtm.tif")
 
 	# nDSM
 
@@ -78,13 +78,13 @@ def prepareInputs():
 	# ndsm[ndsm<2] = 0
 	ndsm[ndsm<0] = 0
 
-	io.imsave("C:/bertud_temp/ndsm.tif",ndsm)
+	io.imsave(temp_folder + "/ndsm.tif",ndsm)
 	
 	# Slope 
 
 	slope = ndimage.generic_filter(ndsm,slopeFilter,size=3)
-	io.imsave("C:/bertud_temp/slope.tif",slope)
+	io.imsave(temp_folder + "/slope.tif",slope)
 
 	slopeslope = ndimage.generic_filter(slope,slopeFilter,size=3)
-	io.imsave("C:/bertud_temp/slopeslope.tif",slopeslope)
+	io.imsave(temp_folder + "/slopeslope.tif",slopeslope)
 

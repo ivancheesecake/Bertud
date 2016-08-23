@@ -10,11 +10,13 @@ import networkx as nx
 import math
 import random
 from scipy.interpolate import interp1d
+import uuid
+import sys
 
 
 class Building(object):
 
-	def __init__(self, initial_footprint, footprint_index, footprint_slice):
+	def __init__(self, initial_footprint, footprint_index, footprint_slice, file_location, pickle_folder):
 		self.FOOTPRINT_index_num = footprint_index
 		self.FOOTPRINT_initial = initial_footprint
 		self.FOOTPRINT_slice = footprint_slice
@@ -26,6 +28,9 @@ class Building(object):
 		self.POINTS_critical = None
 		self.POINTS_SA_adjusted = None
 		self.POINTS_final = None
+		self.LOG_msgs = []
+		self.FILE_location = file_location
+		self.PICKLE_filename = pickle_folder + "\\" + str(footprint_index) + "-" + str(uuid.uuid4()) + ".p"
 		# self.FXN_min_e = FXN_min_e
 		# self.FXN_angle_cost = FXN_angle_cost
 		self.processing_time = None
@@ -254,9 +259,21 @@ class Building(object):
 	def adjust_footprint(self, MAX_ITR_FOR_ADJUSTING = 2):
 		final_route = copy.deepcopy(self.POINTS_SA_adjusted)
 		adjust_itr = 1
+
 		while adjust_itr <= MAX_ITR_FOR_ADJUSTING:
-			adjusted_sides = self.adjust_sides(final_route)
-			adjusted_rotation = self.adjust_rotation(adjusted_sides)
+
+			try:
+				adjusted_sides = self.adjust_sides(final_route)
+			except:
+				self.LOG_msgs.append(("ERROR", "Adjusting Footprint Sides - ITR: %s - %s - FILE: %s" % (adjust_itr, sys.exc_info()[0], self.PICKLE_filename)))
+				return copy.deepcopy(self.POINTS_SA_adjusted)
+
+			try:
+				adjusted_rotation = self.adjust_rotation(adjusted_sides)
+			except:
+				self.LOG_msgs.append(("ERROR", "Adjusting Footprint Rotation - ITR: %s - %s - FILE: %s" % (adjust_itr, sys.exc_info()[0], self.PICKLE_filename)))
+				return copy.deepcopy(self.POINTS_SA_adjusted)
+
 			if np.array_equal(final_route,adjusted_rotation):
 				break
 			else:
@@ -285,7 +302,7 @@ class Building(object):
 			stack.pop()
 			return stack, False, itr
 
-	def neighbor_tracing(self, DIST_BET_PTS = 1.5):
+	def neighbor_tracing(self, DIST_BET_PTS = 1.5, MAX_DFS_ITR = 5000000):
 		num_points = len(self.POINTS_initial)
 		thresh_num_points = round(num_points * 0.6)
 		FLAG_points_not_ordered = True
@@ -304,6 +321,10 @@ class Building(object):
 				seed_point = random.choice(indexes)
 				indexes.remove(seed_point)
 				ordered_indexes, FLAG_finished, itr = self.DFS_ordering(G, seed_point, [seed_point], thresh_num_points, itr = 1)
+
+				if itr >= MAX_DFS_ITR:
+					self.LOG_msgs.append(("WARNING", "Achieved MAX_DFS_ITR - SEEDPOINT: %s - DIST_BET_PTS: %s - FILE: %s" % (seed_point, DIST_BET_PTS, self.PICKLE_filename)))
+
 				if FLAG_finished:
 					FLAG_points_not_ordered = False
 					break
@@ -828,32 +849,73 @@ class Building(object):
 		self.FOOTPRINT_added_boundary = np.zeros((obj_length[0]+CIRCLE_RADIUS*2,obj_length[1]+CIRCLE_RADIUS*2),dtype=np.uint)
 		self.FOOTPRINT_added_boundary[CIRCLE_RADIUS:obj_length[0]+CIRCLE_RADIUS,CIRCLE_RADIUS:obj_length[1]+CIRCLE_RADIUS] = obj
 
-		area = self.clean_footprint()
+		try:
+			area = self.clean_footprint()
+		except:
+			self.LOG_msgs.append(("ERROR", "Cleaning Footprint using Opening - %s - FILE: %s" % (sys.exc_info()[0], self.PICKLE_filename)))
+			self.FOOTPRINT_cleaned_opening = copy.deepcopy(self.FOOTPRINT_added_boundary)
+		else:
+			if area < MIN_FOOTPRINT_AREA:
+				zeros = np.zeros(self.FOOTPRINT_added_boundary.shape,dtype=np.uint8)
+				t1=time.time()
+				self.processing_time = round(t1-t0,2)
+				print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."
 
-		if area < MIN_FOOTPRINT_AREA:
-
-			zeros = np.zeros(self.FOOTPRINT_added_boundary.shape,dtype=np.uint8)
-			t1=time.time()
-			self.processing_time = round(t1-t0,2)
-			print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."
-
-			return self.FOOTPRINT_index_num, zeros, self.FOOTPRINT_slice
+				return (self.FOOTPRINT_index_num, zeros, self.FOOTPRINT_slice), self.LOG_msgs
 
 		boundary_image = find_boundaries(self.FOOTPRINT_cleaned_opening, mode='inner').astype(np.uint8) #value = 1
 
 		nonzero_x, nonzero_y = np.nonzero(boundary_image)
 		self.POINTS_initial = zip(nonzero_x, nonzero_y)
 
-		self.POINTS_ordered = self.neighbor_tracing()
-		self.remove_deep_points()
-		
-		self.POINTS_critical = self.approximate_line_segments()
+		try:
+			self.POINTS_ordered = self.neighbor_tracing()
+		except:
+			self.LOG_msgs.append(("ERROR", "Neighbor Tracing - %s - FILE: %s" % (sys.exc_info()[0], self.PICKLE_filename)))
+			zeros = np.zeros(self.FOOTPRINT_added_boundary.shape,dtype=np.uint8)
+			t1=time.time()
+			self.processing_time = round(t1-t0,2)
+			print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."
 
-		self.POINTS_SA_adjusted = self.simulated_annealing_regularization() 	
+			return (self.FOOTPRINT_index_num, zeros, self.FOOTPRINT_slice), self.LOG_msgs
+
+		try:
+			self.remove_deep_points()
+		except:
+			self.LOG_msgs.append(("ERROR", "Removing Deep Points - %s - FILE: %s" % (sys.exc_info()[0], self.PICKLE_filename)))
+			zeros = np.zeros(self.FOOTPRINT_added_boundary.shape,dtype=np.uint8)
+			t1=time.time()
+			self.processing_time = round(t1-t0,2)
+			print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."
+
+			return (self.FOOTPRINT_index_num, zeros, self.FOOTPRINT_slice), self.LOG_msgs
+
+		try:
+			self.POINTS_critical = self.approximate_line_segments()
+		except:
+			self.LOG_msgs.append(("ERROR", "Approximating Line Segments - %s - FILE: %s" % (sys.exc_info()[0], self.PICKLE_filename)))
+			zeros = np.zeros(self.FOOTPRINT_added_boundary.shape,dtype=np.uint8)
+			t1=time.time()
+			self.processing_time = round(t1-t0,2)
+			print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."
+
+			return (self.FOOTPRINT_index_num, zeros, self.FOOTPRINT_slice), self.LOG_msgs
+
+		try:
+			self.POINTS_SA_adjusted = self.simulated_annealing_regularization()
+		except:
+			self.LOG_msgs.append(("ERROR", "Regularization using Simulated Annealing - %s - FILE: %s" % (sys.exc_info()[0], self.PICKLE_filename)))
+			zeros = np.zeros(self.FOOTPRINT_added_boundary.shape,dtype=np.uint8)
+			t1=time.time()
+			self.processing_time = round(t1-t0,2)
+			print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."
+
+			return (self.FOOTPRINT_index_num, zeros, self.FOOTPRINT_slice), self.LOG_msgs
 		
 		try:
 			self.POINTS_final = self.adjust_footprint()
 		except:
+			print sys.exc_info()
 			print "Something went terribly wrong. Sht. I was working on index ", self.FOOTPRINT_index_num
 			self.POINTS_final = copy.deepcopy(self.POINTS_SA_adjusted)
 
@@ -870,4 +932,4 @@ class Building(object):
 		self.processing_time = round(t1-t0,2)
 		print "Finished processing index",self.FOOTPRINT_index_num,"in",self.processing_time,"s."		
 	
-		return self.FOOTPRINT_index_num, self.FOOTPRINT_final, self.FOOTPRINT_slice
+		return (self.FOOTPRINT_index_num, self.FOOTPRINT_final, self.FOOTPRINT_slice), self.LOG_msgs
